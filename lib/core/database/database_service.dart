@@ -20,6 +20,8 @@ class DatabaseService {
   final String _columnDate = 'date';
   final String _columnImage = 'image';
 
+  final String _columnType = 'type';
+
   // Private constructor
   DatabaseService._constructor();
   
@@ -32,12 +34,21 @@ class DatabaseService {
   Future<Database> getDatabase() async {
     final databaseDirPath = await getDatabasesPath();
     final databasePath = join(databaseDirPath, 'qr_scans.db');
-    final database =
-        await openDatabase(databasePath, version: 1, onCreate: (db, version) {
-      db.execute(
-          'CREATE TABLE $_scansTableName ($_columnId INTEGER PRIMARY KEY, $_columnContent TEXT NOT NULL, $_columnDate INTEGER, $_columnImage BLOB)');
-      log('Table $_scansTableName created');
-    });
+    final database = await openDatabase(
+      databasePath,
+      version: 2,
+      onCreate: (db, version) {
+        db.execute(
+            'CREATE TABLE $_scansTableName ($_columnId INTEGER PRIMARY KEY, $_columnContent TEXT NOT NULL, $_columnDate INTEGER, $_columnImage BLOB, $_columnType TEXT)');
+        log('Table $_scansTableName created');
+      },
+      onUpgrade: (db, oldVersion, newVersion) {
+        if (oldVersion < 2) {
+          db.execute('ALTER TABLE $_scansTableName ADD COLUMN $_columnType TEXT DEFAULT "text"');
+          log('Table $_scansTableName upgraded to version 2 (added type column)');
+        }
+      },
+    );
     log('Database path: $databasePath');
     return database;
   }
@@ -51,6 +62,7 @@ class DatabaseService {
         _columnContent: data.content,
         _columnDate: data.date,
         _columnImage: data.image,
+        _columnType: data.type,
       });
     } catch (e) {
       log('❌ ${e.toString()}');
@@ -86,6 +98,7 @@ class DatabaseService {
         content: maps[index][_columnContent],
         date: maps[index][_columnDate],
         image: maps[index][_columnImage],
+        type: maps[index][_columnType] ?? 'text',
       );
     });
   }

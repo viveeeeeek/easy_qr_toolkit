@@ -16,7 +16,7 @@ QRService qrService(QrServiceRef ref) => QRService();
 
 class QRService {
   /// Processes a scanned Barcode to crop the QR image and extract content
-  Future<({String content, Uint8List image})?> processScannedBarcode(
+  Future<({String content, Uint8List image, String type})?> processScannedBarcode(
     Uint8List rawImage,
     Barcode barcode,
   ) async {
@@ -43,7 +43,15 @@ class QRService {
     );
 
     final croppedImageData = Uint8List.fromList(img.encodePng(croppedImage));
-    return (content: barcode.rawValue!, image: croppedImageData);
+    
+    // Convert BarcodeType enum to string
+    final type = barcode.type.name;
+
+    return (
+      content: barcode.rawValue!,
+      image: croppedImageData,
+      type: type,
+    );
   }
 
   /// Generates QrImage object from data
