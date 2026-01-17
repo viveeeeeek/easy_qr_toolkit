@@ -1,13 +1,15 @@
 import 'dart:typed_data';
 
+import 'package:easy_qr_toolkit/core/enums/scan_type.dart';
 import 'package:easy_qr_toolkit/core/extensions/int.dart';
 import 'package:easy_qr_toolkit/core/extensions/sizedbox.dart';
 import 'package:easy_qr_toolkit/features/history/history_provider.dart';
 import 'package:easy_qr_toolkit/features/history/scan_data_model.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/result_data_section.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/smart_action_buttons.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:saver_gallery/saver_gallery.dart';
 
 class QRScanHistoryView extends ConsumerWidget {
   const QRScanHistoryView({super.key});
@@ -108,9 +110,9 @@ class QRScanHistoryView extends ConsumerWidget {
                       leading: CircleAvatar(
                         backgroundColor:
                             Theme.of(context).colorScheme.primaryContainer,
-                        child: Icon(_getIconForType(item.type)),
+                        child: Icon(ScanType.fromString(item.type).icon),
                       ),
-                      onTap: () => _showDetailsDialog(context, item),
+                      onTap: () => _showDetailsBottomSheet(context, item),
                       title: Text(
                         item.content,
                         style: const TextStyle(fontWeight: FontWeight.w500),
@@ -149,7 +151,7 @@ class QRScanHistoryView extends ConsumerWidget {
   }
 
   Widget _buildFilterChips(WidgetRef ref, String activeFilter) {
-    final filters = ['All', 'URL', 'WiFi', 'ContactInfo', 'Text'];
+    final filters = ['All', ...ScanType.values.where((e) => e != ScanType.other).map((e) => e.displayName)];
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -176,65 +178,153 @@ class QRScanHistoryView extends ConsumerWidget {
     );
   }
 
-  IconData _getIconForType(String type) {
-    switch (type.toLowerCase()) {
-      case 'url':
-        return Icons.link;
-      case 'wifi':
-        return Icons.wifi;
-      case 'contactinfo':
-        return Icons.person_outline;
-      case 'geo':
-        return Icons.map_outlined;
-      default:
-        return Icons.subject;
-    }
-  }
-
-  void _showDetailsDialog(BuildContext context, ScanDataModel item) {
-    showDialog(
+  void _showDetailsBottomSheet(BuildContext context, ScanDataModel item) {
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) {
-        return SimpleDialog(
-          contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.close),
-              ),
-            ],
+        final theme = Theme.of(context);
+        return Container(
+          decoration: BoxDecoration(
+            color: theme.scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
           ),
-          children: [
-            Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.0),
-                child: SizedBox(
-                  height: 180,
-                  width: 180,
-                  child: Image.memory(
-                    item.image,
-                    fit: BoxFit.cover,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                   // Handle
+                  Center(
+                    child: Container(
+                      width: 32,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 24),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.onSurfaceVariant.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
                   ),
-                ),
+
+                  // Content
+                  Flexible(
+                    child: SingleChildScrollView(
+                       physics: const BouncingScrollPhysics(),
+                       child: Column(
+                         crossAxisAlignment: CrossAxisAlignment.stretch,
+                         children: [
+                            // Type Badge
+                            Center(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.primary.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  ScanType.fromString(item.type).label,
+                                  style: TextStyle(
+                                    color: theme.colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            ResultDataSection(content: item.content),
+                            const SizedBox(height: 24),
+                            SmartActionButtons(content: item.content, type: item.type),
+                            const SizedBox(height: 24),
+          
+                            // View/Download QR Button
+                            OutlinedButton.icon(
+                              onPressed: () => _showQRImageDialog(context, item.image, item.content),
+                              icon: const Icon(Icons.qr_code_2),
+                              label: const Text('View Original QR Code'),
+                               style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                side: BorderSide(color: theme.colorScheme.outlineVariant),
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 24),
+                            Center(
+                              child: Text(
+                                DateTime.fromMillisecondsSinceEpoch(item.date).formattedDateTime,
+                                style: TextStyle(
+                                  color: theme.colorScheme.outline,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                         ]
+                       ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            ResultDataSection(content: item.content),
-            SmartActionButtons(content: item.content, type: item.type),
-            10.h,
-            Center(
-              child: Text(
-                DateTime.fromMillisecondsSinceEpoch(item.date).formattedDateTime,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.outline,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-          ],
+          ),
         );
       },
+    );
+  }
+
+  void _showQRImageDialog(BuildContext context, Uint8List imageBytes, String content) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        contentPadding: const EdgeInsets.all(20),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.memory(imageBytes),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                FilledButton.icon(
+                  onPressed: () async {
+                    // Save logic could go here
+                     try {
+                      final result = await SaverGallery.saveImage(
+                        imageBytes,
+                        name: 'scan_${DateTime.now().millisecondsSinceEpoch}',
+                        androidExistNotSave: false,
+                      );
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(result.isSuccess ? 'Saved to Gallery' : 'Failed to save')),
+                        );
+                      }
+                    } catch (e) {
+                       if (context.mounted) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                           SnackBar(content: Text('Error saving: $e')),
+                        );
+                       }
+                    }
+                  },
+                  icon: const Icon(Icons.download),
+                  label: const Text('Save'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
