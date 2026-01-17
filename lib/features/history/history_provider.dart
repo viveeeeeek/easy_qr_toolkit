@@ -1,22 +1,45 @@
 import 'package:easy_qr_toolkit/core/database/database_service.dart';
 import 'package:easy_qr_toolkit/features/history/scan_data_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'history_provider.g.dart';
 
+class HistoryState {
+  final List<ScanDataModel> scans;
+  final String filter;
+
+  const HistoryState({
+    required this.scans,
+    this.filter = 'All',
+  });
+
+  HistoryState copyWith({
+    List<ScanDataModel>? scans,
+    String? filter,
+  }) {
+    return HistoryState(
+      scans: scans ?? this.scans,
+      filter: filter ?? this.filter,
+    );
+  }
+}
+
 @riverpod
 class History extends _$History {
   @override
-  FutureOr<List<ScanDataModel>> build() async {
+  FutureOr<HistoryState> build() async {
     final db = ref.watch(databaseServiceProvider);
-    return db.getData();
+    final scans = await db.getData();
+    return HistoryState(scans: scans);
   }
 
   Future<void> addScan(ScanDataModel scan) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await ref.read(databaseServiceProvider).addData(scan);
-      return ref.read(databaseServiceProvider).getData();
+      final scans = await ref.read(databaseServiceProvider).getData();
+      return state.value!.copyWith(scans: scans);
     });
   }
 
@@ -24,7 +47,14 @@ class History extends _$History {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await ref.read(databaseServiceProvider).deleteData(id);
-      return ref.read(databaseServiceProvider).getData();
+      final scans = await ref.read(databaseServiceProvider).getData();
+      return state.value!.copyWith(scans: scans);
     });
+  }
+
+  void changeFilter(String newFilter) {
+    if (state.hasValue) {
+      state = AsyncValue.data(state.value!.copyWith(filter: newFilter));
+    }
   }
 }
