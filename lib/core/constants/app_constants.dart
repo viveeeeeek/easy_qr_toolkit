@@ -7,3 +7,9 @@ class AppRoutes {
 class AppConstants {
   static const String appName = 'Easy QR Toolkit';
 }
+
+class AppPrefsKeys {
+  static const String isDynamicColor = 'is_dynamic_color';
+  static const String seedColor = 'seed_color';
+  static const String themeMode = 'theme_mode';
+}

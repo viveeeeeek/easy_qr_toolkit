@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 import '../../../core/services/qr_service.dart';
+import 'package:easy_qr_toolkit/features/settings/view/theme_settings_bottom_sheet.dart';
 import 'widgets/generate_qr_textfield.dart';
 
 class HomeView extends ConsumerStatefulWidget {
@@ -145,6 +146,17 @@ Widget _buildFloatingActionButton(BuildContext context) {
 PreferredSizeWidget _buildAppBar(BuildContext context) {
   return AppBar(
     actions: [
+      IconButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            showDragHandle: true,
+            isScrollControlled: true,
+            builder: (context) => const ThemeSettingsBottomSheet(),
+          );
+        },
+        icon: const Icon(Icons.palette_outlined),
+      ),
       IconButton(
         onPressed: () {
           Navigator.pushNamed(context, AppRoutes.history);
