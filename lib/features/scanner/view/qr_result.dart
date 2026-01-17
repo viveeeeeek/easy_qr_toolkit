@@ -2,6 +2,7 @@ import 'package:easy_qr_toolkit/features/scanner/scanner_provider.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/result_image_card.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/result_data_section.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/result_action_buttons.dart';
+import 'package:easy_qr_toolkit/features/scanner/view/widgets/smart_action_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,9 +20,11 @@ class QRResultWidget extends ConsumerWidget {
         children: [
           if (state.scannedImage != null)
             ResultImageCard(imageBytes: state.scannedImage!),
-          
           ResultDataSection(content: state.scannedData),
-          
+          SmartActionButtons(
+            content: state.scannedData,
+            type: state.scannedType,
+          ),
           ResultActionButtons(
             content: state.scannedData,
             onScanAgain: () => ref.read(scannerProvider.notifier).reset(),

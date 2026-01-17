@@ -35,7 +35,7 @@ class CustomScanner extends ConsumerWidget {
                     borderRadius: 10,
                     borderLength: 20,
                     borderWidth: 5,
-                    cutOutSize: 200,
+                    cutOutSize: 240,
                   ),
                 ),
               ),

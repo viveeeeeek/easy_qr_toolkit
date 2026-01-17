@@ -34,8 +34,9 @@ class QRScannerWidget extends ConsumerStatefulWidget {
 class _QRScannerWidgetState extends ConsumerState<QRScannerWidget> {
   final MobileScannerController controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.noDuplicates,
-    useNewCameraSelector: true,
+    formats: [BarcodeFormat.qrCode],
     returnImage: true,
+    autoZoom: true,
   );
 
   @override
@@ -52,6 +53,7 @@ class _QRScannerWidgetState extends ConsumerState<QRScannerWidget> {
       await ref.read(scannerProvider.notifier).updateResult(
             content: result.content,
             image: result.image,
+            type: result.type,
           );
     }
   }
@@ -74,8 +76,8 @@ class _QRScannerWidgetState extends ConsumerState<QRScannerWidget> {
   Widget build(BuildContext context) {
     final scanWindow = Rect.fromCenter(
       center: MediaQuery.of(context).size.center(Offset.zero),
-      width: 200,
-      height: 200,
+      width: 240,
+      height: 240,
     );
 
     return Scaffold(
