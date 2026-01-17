@@ -1,6 +1,6 @@
 import 'package:easy_qr_toolkit/core/services/qr_service.dart';
 import 'package:easy_qr_toolkit/features/scanner/scanner_provider.dart';
-import 'package:easy_qr_toolkit/features/scanner/view/qr_result.dart';
+import 'package:easy_qr_toolkit/features/scanner/view/qr_result_view.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/custom_scanner.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/scanner_app_bar.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/scanner_overlay.dart';
@@ -10,26 +10,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:image_picker/image_picker.dart';
 
-class QRScanView extends ConsumerWidget {
+class QRScanView extends ConsumerStatefulWidget {
   const QRScanView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final scannedData = ref.watch(scannerProvider).scannedData;
-    return Scaffold(
-      body: const QRScannerWidget(),
-    );
-  }
+  ConsumerState<QRScanView> createState() => _QRScannerWidgetState();
 }
 
-class QRScannerWidget extends ConsumerStatefulWidget {
-  const QRScannerWidget({super.key});
-
-  @override
-  ConsumerState<QRScannerWidget> createState() => _QRScannerWidgetState();
-}
-
-class _QRScannerWidgetState extends ConsumerState<QRScannerWidget> {
+class _QRScannerWidgetState extends ConsumerState<QRScanView> {
   final MobileScannerController controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.noDuplicates,
     formats: [BarcodeFormat.qrCode],
@@ -53,7 +41,7 @@ class _QRScannerWidgetState extends ConsumerState<QRScannerWidget> {
             image: result.image,
             type: result.type,
           );
-      
+
       if (mounted) {
         await Navigator.push(
           context,
@@ -86,7 +74,7 @@ class _QRScannerWidgetState extends ConsumerState<QRScannerWidget> {
       width: 240,
       height: 240,
     );
-
+    ref.watch(scannerProvider).scannedData;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: ScannerAppBar(
