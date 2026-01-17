@@ -1,9 +1,7 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 
 class SmartActionButtons extends StatelessWidget {
   final String content;
@@ -75,7 +73,7 @@ class SmartActionButtons extends StatelessWidget {
       );
     }
 
-    // Contact/vCard Action - The "Smart" part
+    // Contact/vCard Action - The "Smart" part (Using flutter_contacts for direct intent)
     if (type == 'contactInfo' || content.contains('BEGIN:VCARD')) {
       buttons.add(
         FilledButton.icon(
@@ -91,24 +89,17 @@ class SmartActionButtons extends StatelessWidget {
 
   Future<void> _saveContact(BuildContext context) async {
     try {
-      final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/contact.vcf');
-      await file.writeAsString(content);
-
-      await Share.shareXFiles(
-        [
-          XFile(
-            file.path,
-            mimeType: 'text/vcard',
-            name: 'contact.vcf',
-          )
-        ],
-        subject: 'Add to Contacts',
-      );
+      // 1. Parse the vCard string into a Contact object
+      final contact = Contact.fromVCard(content);
+      
+      // 2. Open the system's "New Contact" screen pre-filled with this data
+      // This doesn't require manifest permissions as it's an external intent
+      await FlutterContacts.openExternalInsert(contact);
+      
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error sharing contact: $e')),
+          SnackBar(content: Text('Error adding contact: $e')),
         );
       }
     }

@@ -1,6 +1,6 @@
 import 'package:easy_qr_toolkit/core/extensions/sizedbox.dart';
-import 'package:easy_qr_toolkit/core/utils/vcard_parser.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 
 class ResultDataSection extends StatelessWidget {
   final String content;
@@ -10,8 +10,13 @@ class ResultDataSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (content.contains('BEGIN:VCARD')) {
-      final contact = VCardParser.parse(content);
-      return _buildContactUI(context, contact);
+      try {
+        final contact = Contact.fromVCard(content);
+        return _buildContactUI(context, contact);
+      } catch (e) {
+        // Fallback to text if parsing fails
+        debugPrint('VCard parsing error: $e');
+      }
     }
 
     return Column(
@@ -31,8 +36,13 @@ class ResultDataSection extends StatelessWidget {
     );
   }
 
-  Widget _buildContactUI(BuildContext context, VCardData contact) {
+  Widget _buildContactUI(BuildContext context, Contact contact) {
     final colorScheme = Theme.of(context).colorScheme;
+    
+    final name = contact.displayName.isNotEmpty ? contact.displayName : null;
+    final org = contact.organizations.isNotEmpty ? contact.organizations.first.company : null;
+    final phone = contact.phones.isNotEmpty ? contact.phones.first.number : null;
+    final email = contact.emails.isNotEmpty ? contact.emails.first.address : null;
 
     return Column(
       children: [
@@ -43,22 +53,21 @@ class ResultDataSection extends StatelessWidget {
           child: const Icon(Icons.person, size: 40, color: Colors.white),
         ),
         16.h,
-        if (contact.fullName != null && contact.fullName!.isNotEmpty)
+        if (name != null)
           Text(
-            contact.fullName!,
+            name,
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-        if (contact.organization != null && contact.organization!.isNotEmpty)
+        if (org != null)
           Text(
-            contact.organization!,
+            org,
             style: TextStyle(fontSize: 16, color: colorScheme.outline),
           ),
         24.h,
-        // Only show if data is actually there
-        if (contact.phone != null && contact.phone!.isNotEmpty)
-          _buildInfoRow(context, Icons.phone_android, contact.phone!),
-        if (contact.email != null && contact.email!.isNotEmpty)
-          _buildInfoRow(context, Icons.email, contact.email!),
+        if (phone != null)
+          _buildInfoRow(context, Icons.phone_android, phone),
+        if (email != null)
+          _buildInfoRow(context, Icons.email, email),
         20.h,
         const Divider(indent: 25, endIndent: 25),
       ],
