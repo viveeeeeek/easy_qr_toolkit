@@ -31,7 +31,7 @@ class CustomScanner extends ConsumerWidget {
                 decoration: ShapeDecoration(
                   shape: QrScannerOverlayShape(
                     borderColor: Colors.white,
-                    overlayColor: Colors.black.withOpacity(0.5),
+                    overlayColor: Colors.black.withValues(alpha: 0.5),
                     borderRadius: 10,
                     borderLength: 20,
                     borderWidth: 5,

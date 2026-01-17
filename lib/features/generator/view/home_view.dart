@@ -48,7 +48,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
 Widget _buildQrCodeView(BuildContext context, WidgetRef ref) {
   final generatorState = ref.watch(generatorProvider);
-  final generator = ref.read(generatorProvider.notifier);
+  ref.read(generatorProvider.notifier);
 
   if (generatorState.data.isNotEmpty && generatorState.qrImageObject != null) {
     return Column(
@@ -60,7 +60,7 @@ Widget _buildQrCodeView(BuildContext context, WidgetRef ref) {
             width: MediaQuery.of(context).size.width * 0.65,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              color: context.primaryContainer.withOpacity(0.5),
+              color: context.primaryContainer.withValues(alpha: 0.5),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

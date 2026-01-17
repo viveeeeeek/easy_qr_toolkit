@@ -25,14 +25,14 @@ class ResultDataSection extends StatelessWidget {
     }
 
     if (content.startsWith('http')) {
-      if (content.contains('google.com/maps') || 
-          content.contains('maps.google.com') || 
+      if (content.contains('google.com/maps') ||
+          content.contains('maps.google.com') ||
           content.contains('goo.gl/maps')) {
         return _buildLocationUI(context, content);
       }
       return _buildUrlUI(context, content);
     }
-    
+
     if (content.startsWith('geo:')) {
       return _buildLocationUI(context, content);
     }
@@ -76,11 +76,16 @@ class ResultDataSection extends StatelessWidget {
 
   Widget _buildContactUI(BuildContext context, Contact contact) {
     final colorScheme = Theme.of(context).colorScheme;
-    
-    final name = contact.displayName.isNotEmpty ? contact.displayName : 'Contact';
-    final org = contact.organizations.isNotEmpty ? contact.organizations.first.company : null;
-    final phone = contact.phones.isNotEmpty ? contact.phones.first.number : null;
-    final email = contact.emails.isNotEmpty ? contact.emails.first.address : null;
+
+    final name =
+        contact.displayName.isNotEmpty ? contact.displayName : 'Contact';
+    final org = contact.organizations.isNotEmpty
+        ? contact.organizations.first.company
+        : null;
+    final phone =
+        contact.phones.isNotEmpty ? contact.phones.first.number : null;
+    final email =
+        contact.emails.isNotEmpty ? contact.emails.first.address : null;
 
     return Column(
       children: [
@@ -97,10 +102,8 @@ class ResultDataSection extends StatelessWidget {
             style: TextStyle(fontSize: 14, color: colorScheme.outline),
           ),
         24.h,
-        if (phone != null)
-          _buildInfoRow(context, Icons.phone_android, phone),
-        if (email != null)
-          _buildInfoRow(context, Icons.email, email),
+        if (phone != null) _buildInfoRow(context, Icons.phone_android, phone),
+        if (email != null) _buildInfoRow(context, Icons.email, email),
       ],
     );
   }
@@ -111,8 +114,8 @@ class ResultDataSection extends StatelessWidget {
         _buildIconHeader(context, Icons.link),
         16.h,
         Padding(
-           padding: const EdgeInsets.symmetric(horizontal: 24),
-           child: Text(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Text(
             url,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             textAlign: TextAlign.center,
@@ -128,8 +131,8 @@ class ResultDataSection extends StatelessWidget {
         _buildIconHeader(context, Icons.location_on),
         16.h,
         Padding(
-           padding: const EdgeInsets.symmetric(horizontal: 24),
-           child: Text(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Text(
             location,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             textAlign: TextAlign.center,
@@ -138,15 +141,15 @@ class ResultDataSection extends StatelessWidget {
       ],
     );
   }
-  
+
   Widget _buildTextUI(BuildContext context, String text) {
     return Column(
       children: [
         _buildIconHeader(context, Icons.text_fields),
         16.h,
-         Padding(
-           padding: const EdgeInsets.symmetric(horizontal: 24),
-           child: Text(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Text(
             text,
             style: const TextStyle(fontSize: 18),
             textAlign: TextAlign.center,
