@@ -43,12 +43,17 @@ class _QRScannerWidgetState extends ConsumerState<QRScanView> {
           );
 
       if (mounted) {
+        // Stop the camera before navigating to save resources
+        await controller.stop();
+        
         await Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const QRResultView()),
         );
-        // Reset scanner when we return
+        
+        // Reset scanner and restart camera when we return
         ref.read(scannerProvider.notifier).reset();
+        await controller.start();
       }
     }
   }
