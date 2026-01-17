@@ -42,7 +42,7 @@ enum ScanType {
       case ScanType.contactInfo:
         return Icons.person_outline;
       case ScanType.geo:
-        return Icons.map_outlined;
+        return Icons.location_on;
       case ScanType.text:
         return Icons.text_fields;
       case ScanType.other:

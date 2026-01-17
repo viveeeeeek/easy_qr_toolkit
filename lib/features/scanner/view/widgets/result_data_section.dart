@@ -25,7 +25,16 @@ class ResultDataSection extends StatelessWidget {
     }
 
     if (content.startsWith('http')) {
+      if (content.contains('google.com/maps') || 
+          content.contains('maps.google.com') || 
+          content.contains('goo.gl/maps')) {
+        return _buildLocationUI(context, content);
+      }
       return _buildUrlUI(context, content);
+    }
+    
+    if (content.startsWith('geo:')) {
+      return _buildLocationUI(context, content);
     }
 
     return _buildTextUI(context, content);
@@ -105,6 +114,23 @@ class ResultDataSection extends StatelessWidget {
            padding: const EdgeInsets.symmetric(horizontal: 24),
            child: Text(
             url,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLocationUI(BuildContext context, String location) {
+    return Column(
+      children: [
+        _buildIconHeader(context, Icons.location_on),
+        16.h,
+        Padding(
+           padding: const EdgeInsets.symmetric(horizontal: 24),
+           child: Text(
+            location,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             textAlign: TextAlign.center,
           ),

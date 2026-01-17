@@ -45,13 +45,28 @@ class QRService {
     final croppedImageData = Uint8List.fromList(img.encodePng(croppedImage));
     
     // Convert BarcodeType enum to string
-    final type = barcode.type.name;
+    // Refine the type based on content
+    final type = _refineScanType(barcode.type.name, barcode.rawValue!);
 
     return (
       content: barcode.rawValue!,
       image: croppedImageData,
       type: type,
     );
+  }
+
+  String _refineScanType(String originalType, String content) {
+    if (content.startsWith('geo:')) return 'geo';
+    if (content.contains('google.com/maps') || 
+        content.contains('maps.google.com') || 
+        content.contains('goo.gl/maps')) {
+      return 'geo';
+    }
+    
+    if (content.startsWith('WIFI:')) return 'wifi';
+    if (content.contains('BEGIN:VCARD')) return 'contactInfo';
+    
+    return originalType;
   }
 
   /// Generates QrImage object from data
