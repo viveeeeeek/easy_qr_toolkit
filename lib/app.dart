@@ -34,6 +34,7 @@ class App extends StatelessWidget {
                 colorScheme: darkColorScheme, textTheme: buildDarkTextTheme()),
             routes: appRoutes,
             initialRoute: '/home',
+            debugShowCheckedModeBanner: false,
           );
         }));
   }
