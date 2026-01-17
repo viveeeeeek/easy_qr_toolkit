@@ -4,6 +4,7 @@ import 'package:easy_qr_toolkit/core/extensions/int.dart';
 import 'package:easy_qr_toolkit/features/history/history_provider.dart';
 import 'package:easy_qr_toolkit/features/history/scan_data_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HistoryListItem extends ConsumerWidget {
@@ -16,6 +17,20 @@ class HistoryListItem extends ConsumerWidget {
     required this.onTap,
   });
 
+  String _getDisplayContent(String content, String type) {
+    if (type == 'contact' || content.contains('BEGIN:VCARD')) {
+      try {
+        final contact = Contact.fromVCard(content);
+        if (contact.displayName.isNotEmpty) {
+          return contact.displayName;
+        }
+      } catch (_) {
+        // Fallback to raw content on parse error
+      }
+    }
+    return content;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
@@ -26,7 +41,7 @@ class HistoryListItem extends ConsumerWidget {
       ),
       onTap: onTap,
       title: Text(
-        item.content,
+        _getDisplayContent(item.content, item.type),
         style: const TextStyle(fontWeight: FontWeight.w500),
         overflow: TextOverflow.ellipsis,
       ),

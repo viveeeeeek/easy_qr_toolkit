@@ -57,7 +57,7 @@ enum ScanType {
       case ScanType.wifi:
         return 'WiFi';
       case ScanType.contactInfo:
-        return 'ContactInfo';
+        return 'Contact';
       case ScanType.geo:
         return 'Location';
       case ScanType.text:

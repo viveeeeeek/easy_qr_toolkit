@@ -9,6 +9,8 @@ import 'package:easy_qr_toolkit/features/history/view/widgets/qr_image_dialog.da
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/enums/scan_type.dart';
+
 class QRScanHistoryView extends ConsumerWidget {
   const QRScanHistoryView({super.key});
 
@@ -83,7 +85,7 @@ class QRScanHistoryView extends ConsumerWidget {
                   ? scans.reversed.toList()
                   : scans.reversed
                       .where((item) =>
-                          item.type.toLowerCase() == filter.toLowerCase())
+                          ScanType.fromString(item.type).displayName == filter)
                       .toList();
 
               if (filteredData.isEmpty) {
