@@ -3,17 +3,18 @@ import 'dart:ui';
 import 'package:easy_qr_toolkit/core/services/qr_service.dart';
 import 'package:easy_qr_toolkit/features/generator/generator_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
-class QRTextInputWidget extends ConsumerStatefulWidget {
-  const QRTextInputWidget({super.key});
+class ModernQRInputCard extends ConsumerStatefulWidget {
+  const ModernQRInputCard({super.key});
 
   @override
-  ConsumerState<QRTextInputWidget> createState() => _QRTextInputWidgetState();
+  ConsumerState<ModernQRInputCard> createState() => _ModernQRInputCardState();
 }
 
-class _QRTextInputWidgetState extends ConsumerState<QRTextInputWidget> {
+class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -28,68 +29,115 @@ class _QRTextInputWidgetState extends ConsumerState<QRTextInputWidget> {
     final generator = ref.read(generatorProvider.notifier);
     final qrService = ref.read(qrServiceProvider);
 
-    return TextField(
-      controller: _controller,
-      onChanged: (data) async {
-        if (data.isEmpty) {
-          generator.reset();
-          return;
-        }
-
-        final qrImageObject = qrService.generateQrImageObject(data);
-
-        // Update state with text and object first
-        generator.updateState(
-          data: data,
-          qrImageObject: qrImageObject,
-        );
-
-        // Then generate bytes for sharing/saving
-        final qrImageAsBytes = await qrImageObject.toImageAsBytes(
-          size: 512,
-          format: ImageByteFormat.png,
-          decoration: const PrettyQrDecoration(
-            shape: PrettyQrSmoothSymbol(
-              color: Colors.white,
-              roundFactor: BorderSide.strokeAlignCenter,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        TextField(
+          controller: _controller,
+          onChanged: (data) => _onTextChanged(data, ref),
+          inputFormatters: [
+            // Prevent entering newlines to keep input simple
+            FilteringTextInputFormatter.deny(RegExp(r'\n')),
+          ],
+          textInputAction: TextInputAction.done,
+          minLines: 4,
+          maxLines: null,
+          keyboardType: TextInputType.text,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            height: 1.5,
+          ),
+          decoration: InputDecoration(
+            hintText: 'What would you like to share?',
+            hintStyle: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7),
+            ),
+            filled: true,
+            fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.all(24),
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (generatorData.data.isEmpty)
+          FilledButton.tonalIcon(
+            onPressed: () async {
+              final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+              if (clipboardData != null &&
+                  clipboardData.text != null &&
+                  clipboardData.text!.isNotEmpty) {
+                _controller.text = clipboardData.text!;
+                _onTextChanged(clipboardData.text!, ref);
+              }
+            },
+            icon: const Icon(Icons.paste_rounded, size: 18),
+            label: const Text('Paste from Clipboard'),
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
           ),
-        );
-
-        if (qrImageAsBytes != null) {
-          generator.updateState(
-            data: data,
-            qrImageObject: qrImageObject,
-            generatedQrImage: qrImageAsBytes.buffer.asUint8List(),
-          );
-        }
-      },
-      minLines: 1,
-      maxLines: null,
-      keyboardType: TextInputType.multiline,
-      decoration: InputDecoration(
-        suffixIcon: generatorData.data.isNotEmpty
-            ? IconButton(
-                onPressed: () {
-                  _controller.clear();
-                  generator.reset();
-                },
-                icon: const Icon(Icons.clear),
-              )
-            : null,
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            width: 2,
-            color: Theme.of(context).colorScheme.primary,
+        if (generatorData.data.isNotEmpty)
+          TextButton.icon(
+            onPressed: () {
+              _controller.clear();
+              generator.reset();
+            },
+            icon: const Icon(Icons.clear_rounded, size: 18),
+            label: const Text('Clear text'),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
           ),
+      ],
+    );
+  }
+
+  Future<void> _onTextChanged(String data, WidgetRef ref) async {
+    final generator = ref.read(generatorProvider.notifier);
+    final qrService = ref.read(qrServiceProvider);
+
+    if (data.trim().isEmpty) {
+      generator.reset();
+      return;
+    }
+
+    final qrImageObject = qrService.generateQrImageObject(data);
+
+    generator.updateState(
+      data: data,
+      qrImageObject: qrImageObject,
+    );
+
+    final qrImageAsBytes = await qrImageObject.toImageAsBytes(
+      size: 512,
+      format: ImageByteFormat.png,
+      decoration: const PrettyQrDecoration(
+        shape: PrettyQrSmoothSymbol(
+          color: Colors.black,
+          roundFactor: BorderSide.strokeAlignCenter,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Theme.of(context).disabledColor),
-        ),
-        labelText: 'Enter text',
-        floatingLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-        floatingLabelBehavior: FloatingLabelBehavior.auto,
       ),
     );
+
+    if (qrImageAsBytes == null) return;
+
+    final paddedQrBytes = await qrService.generatePaddedQrImage(
+      qrImageAsBytes.buffer.asUint8List(),
+    );
+
+    // Check if the input has changed while we were generating the image
+    // This prevents race conditions where an old generation finishes after the text has been cleared or changed
+    if (!mounted || _controller.text != data) return;
+
+    if (paddedQrBytes != null) {
+      generator.updateState(
+        data: data,
+        qrImageObject: qrImageObject,
+        generatedQrImage: paddedQrBytes,
+      );
+    }
   }
 }

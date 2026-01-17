@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:path_provider/path_provider.dart';
@@ -16,7 +18,8 @@ QRService qrService(QrServiceRef ref) => QRService();
 
 class QRService {
   /// Processes a scanned Barcode to crop the QR image and extract content
-  Future<({String content, Uint8List image, String type})?> processScannedBarcode(
+  Future<({String content, Uint8List image, String type})?>
+      processScannedBarcode(
     Uint8List rawImage,
     Barcode barcode,
   ) async {
@@ -43,7 +46,7 @@ class QRService {
     );
 
     final croppedImageData = Uint8List.fromList(img.encodePng(croppedImage));
-    
+
     // Convert BarcodeType enum to string
     // Refine the type based on content
     final type = _refineScanType(barcode.type.name, barcode.rawValue!);
@@ -57,15 +60,15 @@ class QRService {
 
   String _refineScanType(String originalType, String content) {
     if (content.startsWith('geo:')) return 'geo';
-    if (content.contains('google.com/maps') || 
-        content.contains('maps.google.com') || 
+    if (content.contains('google.com/maps') ||
+        content.contains('maps.google.com') ||
         content.contains('goo.gl/maps')) {
       return 'geo';
     }
-    
+
     if (content.startsWith('WIFI:')) return 'wifi';
     if (content.contains('BEGIN:VCARD')) return 'contactInfo';
-    
+
     return originalType;
   }
 
@@ -76,6 +79,27 @@ class QRService {
       errorCorrectLevel: QrErrorCorrectLevel.H,
     );
     return QrImage(qrCode);
+  }
+
+  /// Generates a high-quality QR image with white padding from existing bytes
+  Future<Uint8List?> generatePaddedQrImage(Uint8List qrBytes) async {
+    final img.Image? decodedQr = img.decodePng(qrBytes);
+    if (decodedQr == null) return null;
+
+    // Add padding (approx 5% of size)
+    const int padding = 32;
+    final int totalSize = decodedQr.width + (padding * 2);
+
+    final img.Image paddedImage =
+        img.Image(width: totalSize, height: totalSize);
+
+    // Fill background with white
+    img.fill(paddedImage, color: img.ColorRgb8(255, 255, 255));
+
+    // Draw QR in center
+    img.compositeImage(paddedImage, decodedQr, dstX: padding, dstY: padding);
+
+    return Uint8List.fromList(img.encodePng(paddedImage));
   }
 
   /// Shares an image
