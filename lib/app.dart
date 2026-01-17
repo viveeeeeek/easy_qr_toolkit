@@ -35,7 +35,7 @@ class App extends StatelessWidget {
           theme: ThemeData(
               colorScheme: lightColorScheme,
               useMaterial3: true,
-              textTheme: GoogleFonts.robotoTextTheme()),
+              textTheme: buildLightTextTheme()),
           themeMode: ThemeMode.system,
           darkTheme: ThemeData(
               colorScheme: darkColorScheme, textTheme: buildDarkTextTheme()),
