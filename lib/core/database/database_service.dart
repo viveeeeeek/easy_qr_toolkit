@@ -1,8 +1,15 @@
 import 'dart:developer';
-
-import 'package:easy_qr_toolkit/models/scan_data_model.dart';
+import 'package:easy_qr_toolkit/features/history/scan_data_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'database_service.g.dart';
+
+@Riverpod(keepAlive: true)
+DatabaseService databaseService(DatabaseServiceRef ref) {
+  return DatabaseService.instance;
+}
 
 class DatabaseService {
   static Database? _db;
@@ -15,6 +22,7 @@ class DatabaseService {
 
   // Private constructor
   DatabaseService._constructor();
+  
   Future<Database> get database async {
     if (_db != null) return _db!;
     _db = await getDatabase();
@@ -35,8 +43,6 @@ class DatabaseService {
   }
 
   /// Add data
-  ///
-  /// This method adds the scanned qr data into the database
   Future<void> addData(ScanDataModel data) async {
     final db = await database;
     try {
@@ -47,13 +53,11 @@ class DatabaseService {
         _columnImage: data.image,
       });
     } catch (e) {
-      log('❌' + e.toString());
+      log('❌ ${e.toString()}');
     }
   }
 
   /// Delete data
-  ///
-  /// This method deletes the scanned qr data from the database
   Future<void> deleteData(int id) async {
     final db = await database;
     await db.delete(_scansTableName, where: '$_columnId = ?', whereArgs: [id]);
@@ -73,8 +77,6 @@ class DatabaseService {
   }
 
   /// Get data
-  ///
-  /// This method returns the list of scanned qr data from the database
   Future<List<ScanDataModel>> getData() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(_scansTableName);

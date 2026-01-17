@@ -1,10 +1,11 @@
-import 'package:easy_qr_toolkit/views/home/home_view.dart';
-import 'package:easy_qr_toolkit/views/qr_scan/qr_scan_view.dart';
-import 'package:easy_qr_toolkit/views/qr_scan_history/qr_scan_history_view.dart';
+import 'package:easy_qr_toolkit/core/constants/app_constants.dart';
+import 'package:easy_qr_toolkit/features/generator/view/home_view.dart';
+import 'package:easy_qr_toolkit/features/scanner/view/qr_scan_view.dart';
+import 'package:easy_qr_toolkit/features/history/view/history_view.dart';
 import 'package:flutter/material.dart';
 
 final appRoutes = {
-  '/home': (BuildContext context) => const HomeView(),
-  '/scan': (BuildContext context) => const QRScanView(),
-  '/scan_history': (BuildContext context) => const QRScanHistoryView(),
+  AppRoutes.home: (BuildContext context) => const HomeView(),
+  AppRoutes.scan: (BuildContext context) => const QRScanView(),
+  AppRoutes.history: (BuildContext context) => const QRScanHistoryView(),
 };

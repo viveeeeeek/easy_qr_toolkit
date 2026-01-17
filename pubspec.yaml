@@ -43,10 +43,20 @@ dependencies:
   saver_gallery: ^3.0.6
   share_plus: ^10.0.2
   sqflite: ^2.3.3+1
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  riverpod_generator: ^2.4.0
+  build_runner: ^2.4.9
+  custom_lint: ^0.6.4
+  riverpod_lint: ^2.3.10
+  freezed: ^2.5.2
+  json_serializable: ^6.8.0
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 # The following section is specific to Flutter packages.

@@ -1,27 +1,22 @@
-import 'package:easy_qr_toolkit/models/scan_data_model.dart';
-import 'package:easy_qr_toolkit/core/services/database_service.dart';
-import 'package:easy_qr_toolkit/providers/qr_data_provider.dart';
-import 'package:easy_qr_toolkit/core/utils/qr_scanner_overlay_shape.dart';
-import 'package:easy_qr_toolkit/view_models/qr_scan_viewmodel.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-// import 'package:image/image.dart' as img;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:provider/provider.dart';
+import 'package:easy_qr_toolkit/core/utils/qr_scanner_overlay_shape.dart';
 
-class CustomScanner extends StatelessWidget {
+class CustomScanner extends ConsumerWidget {
   const CustomScanner({
     super.key,
     required this.scanWindow,
     required this.controller,
+    required this.onDetect,
   });
 
   final Rect scanWindow;
   final MobileScannerController controller;
+  final Function(BarcodeCapture) onDetect;
 
   @override
-  Widget build(BuildContext context) {
-    QrScanViewmodel qrScanViewmodel = QrScanViewmodel();
+  Widget build(BuildContext context, WidgetRef ref) {
     return MobileScanner(
       scanWindow: scanWindow,
       scanWindowUpdateThreshold: 1000,
@@ -36,6 +31,7 @@ class CustomScanner extends StatelessWidget {
                 decoration: ShapeDecoration(
                   shape: QrScannerOverlayShape(
                     borderColor: Colors.white,
+                    overlayColor: Colors.black.withOpacity(0.5),
                     borderRadius: 10,
                     borderLength: 20,
                     borderWidth: 5,
@@ -47,10 +43,7 @@ class CustomScanner extends StatelessWidget {
           ),
         );
       },
-      onDetect: (capture) {
-        // final List<Barcode> barcodes = capture.barcodes;
-        qrScanViewmodel.handleScannedQR(context, capture);
-      },
+      onDetect: onDetect,
     );
   }
 }
