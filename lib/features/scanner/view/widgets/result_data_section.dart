@@ -1,4 +1,5 @@
 import 'package:easy_qr_toolkit/core/extensions/sizedbox.dart';
+import 'package:easy_qr_toolkit/core/utils/wifi_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 
@@ -14,9 +15,13 @@ class ResultDataSection extends StatelessWidget {
         final contact = Contact.fromVCard(content);
         return _buildContactUI(context, contact);
       } catch (e) {
-        // Fallback to text if parsing fails
         debugPrint('VCard parsing error: $e');
       }
+    }
+
+    final wifi = WifiParser.parse(content);
+    if (wifi != null) {
+      return _buildWifiUI(context, wifi);
     }
 
     return Column(
@@ -26,6 +31,44 @@ class ResultDataSection extends StatelessWidget {
           style: const TextStyle(fontSize: 18),
           textAlign: TextAlign.center,
         ),
+      ],
+    );
+  }
+
+  Widget _buildWifiUI(BuildContext context, WifiResult wifi) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: 32,
+          backgroundColor: colorScheme.primaryContainer,
+          child: Icon(Icons.wifi, size: 32, color: colorScheme.primary),
+        ),
+        16.h,
+        Text(
+          wifi.ssid,
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        8.h,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: colorScheme.outlineVariant),
+          ),
+          child: Text(
+            'Security: ${wifi.type}',
+            style: TextStyle(
+              fontSize: 12,
+              color: colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        24.h,
+        _buildInfoRow(context, Icons.lock_outline, wifi.password),
       ],
     );
   }

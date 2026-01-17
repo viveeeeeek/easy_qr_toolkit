@@ -1,3 +1,7 @@
+import 'dart:io';
+import 'package:android_intent_plus/android_intent.dart';
+import 'package:android_intent_plus/flag.dart';
+import 'package:easy_qr_toolkit/core/utils/wifi_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
@@ -50,14 +54,9 @@ class SmartActionButtons extends StatelessWidget {
     if (type == 'wifi' || content.startsWith('WIFI:')) {
       buttons.add(
         FilledButton.icon(
-          onPressed: () {
-            Clipboard.setData(ClipboardData(text: content));
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('WiFi details copied to clipboard')),
-            );
-          },
-          icon: const Icon(Icons.wifi),
-          label: const Text('Copy WiFi Details'),
+          onPressed: () => _handleWifiConnect(context),
+          icon: const Icon(Icons.wifi_find_rounded),
+          label: const Text('Connect to Network'),
         ),
       );
     }
@@ -73,7 +72,7 @@ class SmartActionButtons extends StatelessWidget {
       );
     }
 
-    // Contact/vCard Action - The "Smart" part (Using flutter_contacts for direct intent)
+    // Contact/vCard Action
     if (type == 'contactInfo' || content.contains('BEGIN:VCARD')) {
       buttons.add(
         FilledButton.icon(
@@ -87,15 +86,41 @@ class SmartActionButtons extends StatelessWidget {
     return buttons;
   }
 
+  Future<void> _handleWifiConnect(BuildContext context) async {
+    final wifi = WifiParser.parse(content);
+    if (wifi != null && wifi.password.isNotEmpty) {
+      await Clipboard.setData(ClipboardData(text: wifi.password));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Password copied! Opening WiFi Settings...'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+
+    if (Platform.isAndroid) {
+      const intent = AndroidIntent(
+        action: 'android.settings.WIFI_SETTINGS',
+        flags: [Flag.FLAG_ACTIVITY_NEW_TASK],
+      );
+      await intent.launch();
+    } else if (Platform.isIOS) {
+       final url = Uri.parse('App-Prefs:root=WIFI');
+       if (await canLaunchUrl(url)) {
+         await launchUrl(url);
+       } else {
+         // Fallback usually just opens settings
+         await launchUrl(Uri.parse('app-settings:'));
+       }
+    }
+  }
+
   Future<void> _saveContact(BuildContext context) async {
     try {
-      // 1. Parse the vCard string into a Contact object
       final contact = Contact.fromVCard(content);
-      
-      // 2. Open the system's "New Contact" screen pre-filled with this data
-      // This doesn't require manifest permissions as it's an external intent
       await FlutterContacts.openExternalInsert(contact);
-      
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
