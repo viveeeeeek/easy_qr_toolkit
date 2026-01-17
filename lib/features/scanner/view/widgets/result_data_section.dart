@@ -21,16 +21,10 @@ class ResultDataSection extends StatelessWidget {
 
     return Column(
       children: [
-        33.h,
         Text(
           content,
-          style: const TextStyle(fontSize: 20),
+          style: const TextStyle(fontSize: 18),
           textAlign: TextAlign.center,
-        ),
-        20.h,
-        const Divider(
-          indent: 25,
-          endIndent: 25,
         ),
       ],
     );
@@ -46,30 +40,27 @@ class ResultDataSection extends StatelessWidget {
 
     return Column(
       children: [
-        20.h,
         CircleAvatar(
-          radius: 40,
+          radius: 32,
           backgroundColor: colorScheme.primary,
-          child: const Icon(Icons.person, size: 40, color: Colors.white),
+          child: const Icon(Icons.person, size: 32, color: Colors.white),
         ),
         16.h,
         if (name != null)
           Text(
             name,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
         if (org != null)
           Text(
             org,
-            style: TextStyle(fontSize: 16, color: colorScheme.outline),
+            style: TextStyle(fontSize: 14, color: colorScheme.outline),
           ),
         24.h,
         if (phone != null)
           _buildInfoRow(context, Icons.phone_android, phone),
         if (email != null)
           _buildInfoRow(context, Icons.email, email),
-        20.h,
-        const Divider(indent: 25, endIndent: 25),
       ],
     );
   }

@@ -8,14 +8,26 @@ class ResultImageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(15),
-      child: SizedBox(
-        width: 200,
-        height: 200,
-        child: Image(
-          image: MemoryImage(imageBytes),
-          fit: BoxFit.cover,
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: SizedBox(
+          width: 140, // Reduced from 200 for a more "proof" look
+          height: 140,
+          child: Image(
+            image: MemoryImage(imageBytes),
+            fit: BoxFit.cover,
+          ),
         ),
       ),
     );

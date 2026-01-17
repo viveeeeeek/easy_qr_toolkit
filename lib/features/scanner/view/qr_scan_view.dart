@@ -17,9 +17,7 @@ class QRScanView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scannedData = ref.watch(scannerProvider).scannedData;
     return Scaffold(
-      body: scannedData.isEmpty
-          ? const QRScannerWidget()
-          : const QRResultWidget(),
+      body: const QRScannerWidget(),
     );
   }
 }
@@ -55,6 +53,15 @@ class _QRScannerWidgetState extends ConsumerState<QRScannerWidget> {
             image: result.image,
             type: result.type,
           );
+      
+      if (mounted) {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const QRResultView()),
+        );
+        // Reset scanner when we return
+        ref.read(scannerProvider.notifier).reset();
+      }
     }
   }
 
