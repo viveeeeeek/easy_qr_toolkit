@@ -132,7 +132,7 @@ class SmartActionButtons extends StatelessWidget {
 
   Future<void> _launchUrl(String url) async {
     final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+    if (!await launchUrl(uri)) {
       debugPrint('Could not launch $url');
     }
   }

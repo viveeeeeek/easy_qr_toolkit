@@ -24,26 +24,18 @@ class ResultDataSection extends StatelessWidget {
       return _buildWifiUI(context, wifi);
     }
 
-    return Column(
-      children: [
-        Text(
-          content,
-          style: const TextStyle(fontSize: 18),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
+    if (content.startsWith('http')) {
+      return _buildUrlUI(context, content);
+    }
+
+    return _buildTextUI(context, content);
   }
 
   Widget _buildWifiUI(BuildContext context, WifiResult wifi) {
     final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
-        CircleAvatar(
-          radius: 32,
-          backgroundColor: colorScheme.primaryContainer,
-          child: Icon(Icons.wifi, size: 32, color: colorScheme.primary),
-        ),
+        _buildIconHeader(context, Icons.wifi),
         16.h,
         Text(
           wifi.ssid,
@@ -76,24 +68,20 @@ class ResultDataSection extends StatelessWidget {
   Widget _buildContactUI(BuildContext context, Contact contact) {
     final colorScheme = Theme.of(context).colorScheme;
     
-    final name = contact.displayName.isNotEmpty ? contact.displayName : null;
+    final name = contact.displayName.isNotEmpty ? contact.displayName : 'Contact';
     final org = contact.organizations.isNotEmpty ? contact.organizations.first.company : null;
     final phone = contact.phones.isNotEmpty ? contact.phones.first.number : null;
     final email = contact.emails.isNotEmpty ? contact.emails.first.address : null;
 
     return Column(
       children: [
-        CircleAvatar(
-          radius: 32,
-          backgroundColor: colorScheme.primary,
-          child: const Icon(Icons.person, size: 32, color: Colors.white),
-        ),
+        _buildIconHeader(context, Icons.person),
         16.h,
-        if (name != null)
-          Text(
-            name,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
+        Text(
+          name,
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
         if (org != null)
           Text(
             org,
@@ -105,6 +93,49 @@ class ResultDataSection extends StatelessWidget {
         if (email != null)
           _buildInfoRow(context, Icons.email, email),
       ],
+    );
+  }
+
+  Widget _buildUrlUI(BuildContext context, String url) {
+    return Column(
+      children: [
+        _buildIconHeader(context, Icons.link),
+        16.h,
+        Padding(
+           padding: const EdgeInsets.symmetric(horizontal: 24),
+           child: Text(
+            url,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
+    );
+  }
+  
+  Widget _buildTextUI(BuildContext context, String text) {
+    return Column(
+      children: [
+        _buildIconHeader(context, Icons.text_fields),
+        16.h,
+         Padding(
+           padding: const EdgeInsets.symmetric(horizontal: 24),
+           child: Text(
+            text,
+            style: const TextStyle(fontSize: 18),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildIconHeader(BuildContext context, IconData icon) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return CircleAvatar(
+      radius: 32,
+      backgroundColor: colorScheme.primaryContainer,
+      child: Icon(icon, size: 32, color: colorScheme.primary),
     );
   }
 
