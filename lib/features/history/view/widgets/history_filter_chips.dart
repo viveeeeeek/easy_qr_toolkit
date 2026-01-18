@@ -1,8 +1,8 @@
-
 import 'package:easy_qr_toolkit/core/enums/scan_type.dart';
-import 'package:easy_qr_toolkit/features/history/history_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../provider/history_provider.dart';
 
 class HistoryFilterChips extends ConsumerWidget {
   final String activeFilter;

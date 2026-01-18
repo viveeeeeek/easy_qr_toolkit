@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:easy_qr_toolkit/features/history/history_provider.dart';
+import 'package:easy_qr_toolkit/features/history/provider/history_state.dart';
 import 'package:easy_qr_toolkit/features/history/scan_data_model.dart';
 import 'package:easy_qr_toolkit/features/history/view/widgets/history_details_sheet_content.dart';
 import 'package:easy_qr_toolkit/features/history/view/widgets/history_filter_chips.dart';
@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/enums/scan_type.dart';
+import '../provider/history_provider.dart';
 
 class QRScanHistoryView extends ConsumerStatefulWidget {
   const QRScanHistoryView({super.key});

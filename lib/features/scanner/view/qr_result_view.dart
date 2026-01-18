@@ -1,5 +1,5 @@
 import 'package:easy_qr_toolkit/core/enums/scan_type.dart';
-import 'package:easy_qr_toolkit/features/scanner/scanner_provider.dart';
+import 'package:easy_qr_toolkit/features/scanner/provider/scanner_provider.dart';
 
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/result_data_section.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/result_action_buttons.dart';

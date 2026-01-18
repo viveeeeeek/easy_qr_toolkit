@@ -1,5 +1,5 @@
 import 'package:easy_qr_toolkit/core/services/qr_service.dart';
-import 'package:easy_qr_toolkit/features/scanner/scanner_provider.dart';
+import 'package:easy_qr_toolkit/features/scanner/provider/scanner_provider.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/qr_result_view.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/custom_scanner.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/scanner_app_bar.dart';
