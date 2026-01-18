@@ -7,6 +7,7 @@ import 'package:easy_qr_toolkit/features/scanner/view/widgets/smart_action_butto
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:easy_qr_toolkit/features/scanner/view/qr_scan_view.dart';
 import '../../../core/extensions/sizedbox.dart';
 
 class QRResultView extends ConsumerWidget {
@@ -70,12 +71,17 @@ class QRResultView extends ConsumerWidget {
                       type: state.scannedType,
                     ),
                     
+
+
                     // Utility Actions (Copy/Share)
                     const Divider(height: 32),
                     ResultActionButtons(
                       content: state.scannedData,
                       onScanAgain: () {
-                         Navigator.of(context).pop();
+                         Navigator.pushReplacement(
+                           context,
+                           MaterialPageRoute(builder: (context) => const QRScanView()),
+                         );
                       },
                     ),
                   ],

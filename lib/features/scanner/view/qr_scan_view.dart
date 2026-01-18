@@ -46,7 +46,7 @@ class _QRScannerWidgetState extends ConsumerState<QRScanView> {
         // Stop the camera before navigating to save resources
         await controller.stop();
         
-        await Navigator.push(
+        await Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const QRResultView()),
         );
