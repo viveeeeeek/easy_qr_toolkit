@@ -97,47 +97,12 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
 
   Future<void> _onTextChanged(String data, WidgetRef ref) async {
     final generator = ref.read(generatorProvider.notifier);
-    final qrService = ref.read(qrServiceProvider);
 
     if (data.trim().isEmpty) {
       generator.reset();
       return;
     }
 
-    final qrImageObject = qrService.generateQrImageObject(data);
-
-    generator.updateState(
-      data: data,
-      qrImageObject: qrImageObject,
-    );
-
-    final qrImageAsBytes = await qrImageObject.toImageAsBytes(
-      size: 512,
-      format: ImageByteFormat.png,
-      decoration: const PrettyQrDecoration(
-        shape: PrettyQrSmoothSymbol(
-          color: Colors.black,
-          roundFactor: BorderSide.strokeAlignCenter,
-        ),
-      ),
-    );
-
-    if (qrImageAsBytes == null) return;
-
-    final paddedQrBytes = await qrService.generatePaddedQrImage(
-      qrImageAsBytes.buffer.asUint8List(),
-    );
-
-    // Check if the input has changed while we were generating the image
-    // This prevents race conditions where an old generation finishes after the text has been cleared or changed
-    if (!mounted || _controller.text != data) return;
-
-    if (paddedQrBytes != null) {
-      generator.updateState(
-        data: data,
-        qrImageObject: qrImageObject,
-        generatedQrImage: paddedQrBytes,
-      );
-    }
+    await generator.generateImage(data);
   }
 }

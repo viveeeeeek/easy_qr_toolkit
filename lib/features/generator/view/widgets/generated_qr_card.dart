@@ -15,8 +15,9 @@ class GeneratedQRCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final generatorState = ref.watch(generatorProvider);
+    final qrService = ref.watch(qrServiceProvider);
 
-    if (generatorState.data.isEmpty || generatorState.qrImageObject == null) {
+    if (generatorState.data.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -46,14 +47,9 @@ class GeneratedQRCard extends ConsumerWidget {
                 child: SizedBox(
                   width: isCompact ? 120 : 220,
                   height: isCompact ? 120 : 220,
-                  child: PrettyQrView(
-                    qrImage: generatorState.qrImageObject!,
-                    decoration: PrettyQrDecoration(
-                      shape: PrettyQrSmoothSymbol(
-                        color: Colors.black,
-                        roundFactor: BorderSide.strokeAlignCenter,
-                      ),
-                    ),
+                  child: PrettyQrView.data(
+                    data: generatorState.data,
+                    decoration: qrService.getDecoration(generatorState.shape),
                   ),
                 ),
               ),
@@ -63,7 +59,8 @@ class GeneratedQRCard extends ConsumerWidget {
         SizedBox(height: isCompact ? 16 : 24),
         AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          height: isCompact ? 40 : 56, // Shrink button height slightly or just keep regular
+          height: isCompact ? 40 : 56,
+          // Shrink button height slightly or just keep regular
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -84,8 +81,12 @@ class GeneratedQRCard extends ConsumerWidget {
                 icon: const Icon(Icons.download_rounded, size: 20),
                 label: const Text('Save'),
                 style: FilledButton.styleFrom(
-                   padding: EdgeInsets.symmetric(horizontal: isCompact ? 16 : 24, vertical: isCompact ? 0 : 16),
-                   visualDensity: isCompact ? VisualDensity.compact : VisualDensity.standard,
+                  padding: EdgeInsets.symmetric(
+                      horizontal: isCompact ? 16 : 24,
+                      vertical: isCompact ? 0 : 16),
+                  visualDensity: isCompact
+                      ? VisualDensity.compact
+                      : VisualDensity.standard,
                 ),
               ),
               const SizedBox(width: 16),
@@ -100,8 +101,12 @@ class GeneratedQRCard extends ConsumerWidget {
                 icon: const Icon(Icons.share_rounded, size: 20),
                 label: const Text('Share'),
                 style: FilledButton.styleFrom(
-                   padding: EdgeInsets.symmetric(horizontal: isCompact ? 16 : 24, vertical: isCompact ? 0 : 16),
-                   visualDensity: isCompact ? VisualDensity.compact : VisualDensity.standard,
+                  padding: EdgeInsets.symmetric(
+                      horizontal: isCompact ? 16 : 24,
+                      vertical: isCompact ? 0 : 16),
+                  visualDensity: isCompact
+                      ? VisualDensity.compact
+                      : VisualDensity.standard,
                 ),
               ),
             ],

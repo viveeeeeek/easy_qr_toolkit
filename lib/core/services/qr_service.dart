@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
+
+import 'package:easy_qr_toolkit/features/generator/generator_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
@@ -124,5 +126,40 @@ class QRService {
       androidExistNotSave: false,
     );
     return result.isSuccess;
+  }
+
+  /// Generates a high-quality padded QR image based on shape
+  Future<Uint8List?> generateFullQrImage({
+    required String data,
+    required QrShape shape,
+  }) async {
+    final qrImage = generateQrImageObject(data);
+
+    final qrImageAsBytes = await qrImage.toImageAsBytes(
+      size: 512,
+      format: ImageByteFormat.png,
+      decoration: getDecoration(shape),
+    );
+
+    if (qrImageAsBytes == null) return null;
+
+    return generatePaddedQrImage(qrImageAsBytes.buffer.asUint8List());
+  }
+
+  /// Returns the decoration based on the selected shape
+  PrettyQrDecoration getDecoration(QrShape shape) {
+    return PrettyQrDecoration(
+      shape: shape == QrShape.smooth
+          ? const PrettyQrSmoothSymbol(
+              roundFactor: 1.0, // Fully rounded for clear contrast
+            )
+          : shape == QrShape.rounded
+              ? PrettyQrRoundedSymbol(
+                  borderRadius: BorderRadius.circular(8),
+                )
+              : const PrettyQrSmoothSymbol(
+                  roundFactor: 0.0, // Perfectly sharp
+                ),
+    );
   }
 }

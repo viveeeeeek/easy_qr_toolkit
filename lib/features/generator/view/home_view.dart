@@ -71,7 +71,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const ModernQRInputCard(),
-                    (isKeyboardOpen ? 8.h : 32.h),
+                    (isKeyboardOpen ? 8.h : 24.h),
+                    if (generatorState.data.isNotEmpty) ...[
+                      const _QrStylePicker(),
+                      (isKeyboardOpen ? 8.h : 24.h),
+                    ],
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 400),
                       transitionBuilder: (child, animation) {
@@ -169,5 +173,62 @@ class _HomeViewState extends ConsumerState<HomeView> {
       label: const Text('Scan QR'),
       isExtended: _isFabExpanded,
     );
+  }
+}
+
+class _QrStylePicker extends ConsumerWidget {
+  const _QrStylePicker();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedShape = ref.watch(generatorProvider.select((s) => s.shape));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'QR Style',
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+        ),
+        8.h,
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: QrShape.values.map((shape) {
+              final isSelected = shape == selectedShape;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: FilterChip(
+                  label: Text(
+                      shape.name[0].toUpperCase() + shape.name.substring(1)),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    if (selected) {
+                      _updateShape(ref, shape);
+                    }
+                  },
+                  showCheckmark: false,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _updateShape(WidgetRef ref, QrShape shape) {
+    final generator = ref.read(generatorProvider.notifier);
+
+    // We update the shape in the state
+    generator.updateState(shape: shape);
+
+    // Trigger re-generation of the image with the new shape
+    generator.generateImage();
   }
 }
