@@ -34,6 +34,7 @@ class App extends ConsumerWidget {
           );
           final darkColorScheme = buildDarkColorScheme(
             darkDynamic: darkDynamic,
+            lightDynamic: lightDynamic,
             seedColor: themeState.seedColor,
             isDynamic: themeState.isDynamic,
           );
