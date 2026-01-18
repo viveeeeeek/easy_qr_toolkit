@@ -78,16 +78,17 @@ class QRResultView extends ConsumerWidget {
                     ResultActionButtons(
                       content: state.scannedData,
                       onScanAgain: () {
-                         Navigator.pushReplacement(
-                           context,
-                           MaterialPageRoute(builder: (context) => const QRScanView()),
-                         );
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const QRScanView()),
+                        );
                       },
                     ),
                   ],
                 ),
               ),
-              
+
               const Spacer(),
             ],
           ),
