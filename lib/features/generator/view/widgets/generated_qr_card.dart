@@ -52,6 +52,7 @@ class GeneratedQRCard extends ConsumerWidget {
                     decoration: qrService.getDecoration(
                       generatorState.shape,
                       generatorState.qrColor,
+                      generatorState.logo,
                     ),
                   ),
                 ),

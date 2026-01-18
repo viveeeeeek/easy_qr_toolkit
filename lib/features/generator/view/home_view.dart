@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:easy_qr_toolkit/core/constants/app_constants.dart';
 import 'package:easy_qr_toolkit/core/extensions/color_extension.dart';
 import 'package:easy_qr_toolkit/core/extensions/sizedbox.dart';
@@ -11,6 +13,7 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 import '../../../core/services/qr_service.dart';
 import 'package:easy_qr_toolkit/core/enums/qr_shape.dart';
 import 'package:easy_qr_toolkit/features/settings/view/theme_settings_bottom_sheet.dart';
+import 'package:image_picker/image_picker.dart';
 import 'widgets/generate_qr_textfield.dart';
 import 'widgets/generated_qr_card.dart';
 
@@ -77,6 +80,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       const _QrStylePicker(),
                       (isKeyboardOpen ? 8.h : 20.h),
                       const _QrColorPicker(),
+                      (isKeyboardOpen ? 8.h : 20.h),
+                      const _QrLogoPicker(),
                       (isKeyboardOpen ? 8.h : 24.h),
                     ],
                     AnimatedSwitcher(
@@ -317,6 +322,109 @@ class _QrColorPicker extends ConsumerWidget {
   void _updateColor(WidgetRef ref, Color color) {
     final generator = ref.read(generatorProvider.notifier);
     generator.updateState(qrColor: color);
+    generator.generateImage();
+  }
+}
+
+class _QrLogoPicker extends ConsumerWidget {
+  const _QrLogoPicker();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedLogo = ref.watch(generatorProvider.select((s) => s.logo));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Logo',
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+        ),
+        12.h,
+        Row(
+          children: [
+            GestureDetector(
+              onTap: () => _pickLogo(ref),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                width: 64,
+                height: 64,
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: selectedLogo != null
+                        ? context.primary
+                        : Colors.transparent,
+                    width: 2,
+                  ),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: context.surfaceVariant.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: context.outlineVariant.withOpacity(0.5),
+                    ),
+                  ),
+                  child: selectedLogo != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.file(
+                            selectedLogo,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : const Icon(Icons.add_photo_alternate_outlined),
+                ),
+              ),
+            ),
+            if (selectedLogo != null) ...[
+              16.w,
+              OutlinedButton.icon(
+                onPressed: () => _clearLogo(ref),
+                icon: const Icon(Icons.close_rounded, size: 18),
+                label: const Text('Clear'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: context.error,
+                  side: BorderSide(color: context.error.withOpacity(0.5)),
+                ),
+              ),
+            ] else ...[
+              16.w,
+              Text(
+                'Add a brand logo to your QR',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: context.onSurfaceVariant,
+                    ),
+              ),
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _pickLogo(WidgetRef ref) async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 200,
+      maxHeight: 200,
+    );
+
+    if (image != null) {
+      final generator = ref.read(generatorProvider.notifier);
+      generator.updateState(logo: File(image.path));
+      generator.generateImage();
+    }
+  }
+
+  void _clearLogo(WidgetRef ref) {
+    final generator = ref.read(generatorProvider.notifier);
+    generator.updateState(clearLogo: true);
     generator.generateImage();
   }
 }

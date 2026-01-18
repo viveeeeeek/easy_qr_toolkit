@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -14,12 +15,14 @@ class GeneratorState {
   final String data;
   final QrShape shape;
   final Color qrColor;
+  final File? logo;
   final Uint8List? generatedQrImage;
 
   const GeneratorState({
     this.data = '',
     this.shape = QrShape.smooth,
     this.qrColor = Colors.black,
+    this.logo,
     this.generatedQrImage,
   });
 
@@ -27,12 +30,15 @@ class GeneratorState {
     String? data,
     QrShape? shape,
     Color? qrColor,
+    File? logo,
+    bool clearLogo = false,
     Uint8List? generatedQrImage,
   }) {
     return GeneratorState(
       data: data ?? this.data,
       shape: shape ?? this.shape,
       qrColor: qrColor ?? this.qrColor,
+      logo: clearLogo ? null : (logo ?? this.logo),
       generatedQrImage: generatedQrImage ?? this.generatedQrImage,
     );
   }
@@ -44,6 +50,7 @@ class GeneratorState {
         other.data == data &&
         other.shape == shape &&
         other.qrColor == qrColor &&
+        other.logo?.path == logo?.path &&
         listEquals(other.generatedQrImage, generatedQrImage);
   }
 
@@ -52,6 +59,7 @@ class GeneratorState {
       data.hashCode ^
       shape.hashCode ^
       qrColor.hashCode ^
+      logo.hashCode ^
       generatedQrImage.hashCode;
 }
 
@@ -67,12 +75,16 @@ class Generator extends _$Generator {
     Uint8List? generatedQrImage,
     QrShape? shape,
     Color? qrColor,
+    File? logo,
+    bool clearLogo = false,
   }) {
     state = state.copyWith(
       data: data,
       generatedQrImage: generatedQrImage,
       shape: shape,
       qrColor: qrColor,
+      logo: logo,
+      clearLogo: clearLogo,
     );
   }
 
@@ -89,6 +101,7 @@ class Generator extends _$Generator {
       data: data,
       shape: state.shape,
       color: state.qrColor,
+      logo: state.logo,
     );
 
     // Race condition check: Ensure the data hasn't changed while we were generating
