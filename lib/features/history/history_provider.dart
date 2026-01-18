@@ -8,19 +8,23 @@ part 'history_provider.g.dart';
 class HistoryState {
   final List<ScanDataModel> scans;
   final String filter;
+  final String searchQuery;
 
   const HistoryState({
     required this.scans,
     this.filter = 'All',
+    this.searchQuery = '',
   });
 
   HistoryState copyWith({
     List<ScanDataModel>? scans,
     String? filter,
+    String? searchQuery,
   }) {
     return HistoryState(
       scans: scans ?? this.scans,
       filter: filter ?? this.filter,
+      searchQuery: searchQuery ?? this.searchQuery,
     );
   }
 }
@@ -52,9 +56,23 @@ class History extends _$History {
     });
   }
 
+  Future<void> clearAllScans() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await ref.read(databaseServiceProvider).clearAll();
+      return state.value!.copyWith(scans: []);
+    });
+  }
+
   void changeFilter(String newFilter) {
     if (state.hasValue) {
       state = AsyncValue.data(state.value!.copyWith(filter: newFilter));
+    }
+  }
+
+  void setSearchQuery(String query) {
+    if (state.hasValue) {
+      state = AsyncValue.data(state.value!.copyWith(searchQuery: query));
     }
   }
 }
