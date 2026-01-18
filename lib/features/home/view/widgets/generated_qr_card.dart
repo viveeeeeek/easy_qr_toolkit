@@ -2,10 +2,11 @@ import 'package:easy_qr_toolkit/core/extensions/color_extension.dart';
 import 'package:easy_qr_toolkit/core/extensions/sizedbox.dart';
 import 'package:easy_qr_toolkit/core/services/qr_service.dart';
 import 'package:easy_qr_toolkit/core/utils/custom_snackbar.dart';
-import 'package:easy_qr_toolkit/features/generator/generator_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
+
+import '../../generator_provider.dart';
 
 class GeneratedQRCard extends ConsumerWidget {
   const GeneratedQRCard({super.key, this.isCompact = false});
@@ -99,7 +100,10 @@ class GeneratedQRCard extends ConsumerWidget {
                   if (generatorState.generatedQrImage != null) {
                     ref
                         .read(qrServiceProvider)
-                        .shareImage(generatorState.generatedQrImage!);
+                        .shareImage(
+                          generatorState.generatedQrImage!,
+                          caption: 'Generated with Easy QR Toolkit\nhttps://play.google.com/store/apps/details?id=com.billionants.easy_qr_toolkit',
+                        );
                   }
                 },
                 icon: const Icon(Icons.share_rounded, size: 20),

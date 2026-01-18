@@ -1,185 +1,44 @@
 import 'dart:io';
 
-import 'package:easy_qr_toolkit/core/constants/app_constants.dart';
 import 'package:easy_qr_toolkit/core/extensions/color_extension.dart';
 import 'package:easy_qr_toolkit/core/extensions/sizedbox.dart';
-import 'package:easy_qr_toolkit/core/utils/custom_snackbar.dart';
-import 'package:easy_qr_toolkit/features/generator/generator_provider.dart';
-import 'package:easy_qr_toolkit/features/scanner/view/qr_scan_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pretty_qr_code/pretty_qr_code.dart';
-
-import '../../../core/services/qr_service.dart';
-import 'package:easy_qr_toolkit/core/enums/qr_shape.dart';
-import 'package:easy_qr_toolkit/features/settings/view/theme_settings_bottom_sheet.dart';
 import 'package:image_picker/image_picker.dart';
-import 'widgets/generate_qr_textfield.dart';
-import 'widgets/generated_qr_card.dart';
 
-class HomeView extends ConsumerStatefulWidget {
-  const HomeView({super.key});
+import '../../../../core/enums/qr_shape.dart';
+import '../../generator_provider.dart';
 
-  @override
-  ConsumerState<HomeView> createState() => _HomeViewState();
-}
-
-class _HomeViewState extends ConsumerState<HomeView> {
-  final ScrollController _scrollController = ScrollController();
-  bool _isFabExpanded = true;
+class QrCustomizationSheet extends ConsumerWidget {
+  const QrCustomizationSheet({super.key});
 
   @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_scrollListener);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.removeListener(_scrollListener);
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _scrollListener() {
-    if (_scrollController.position.pixels > 100 && _isFabExpanded) {
-      setState(() {
-        _isFabExpanded = false;
-      });
-    } else if (_scrollController.position.pixels <= 100 && !_isFabExpanded) {
-      setState(() {
-        _isFabExpanded = true;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final generatorState = ref.watch(generatorProvider);
-    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 100;
-
-    return Scaffold(
-      body: GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            _buildSliverAppBar(context),
-            SliverPadding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: isKeyboardOpen ? 10.0 : 20.0,
-              ),
-              sliver: SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const ModernQRInputCard(),
-                    (isKeyboardOpen ? 8.h : 24.h),
-                    if (generatorState.data.isNotEmpty) ...[
-                      const _QrStylePicker(),
-                      (isKeyboardOpen ? 8.h : 20.h),
-                      const _QrColorPicker(),
-                      (isKeyboardOpen ? 8.h : 20.h),
-                      const _QrLogoPicker(),
-                      (isKeyboardOpen ? 8.h : 24.h),
-                    ],
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 400),
-                      transitionBuilder: (child, animation) {
-                        return FadeTransition(
-                          opacity: animation,
-                          child: ScaleTransition(
-                            scale: animation,
-                            child: child,
-                          ),
-                        );
-                      },
-                      child: generatorState.data.isNotEmpty
-                          ? GeneratedQRCard(isCompact: isKeyboardOpen)
-                          : const SizedBox.shrink(),
-                    ),
-                    80.h, // spacing for fab
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 48),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      floatingActionButton: _buildFloatingActionButton(context, isKeyboardOpen),
-    );
-  }
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
 
-  Widget _buildSliverAppBar(BuildContext context) {
-    return SliverAppBar.large(
-      title: const Text('Generate'),
-      actions: [
-        IconButton(
-          onPressed: () {
-            showModalBottomSheet(
-              context: context,
-              showDragHandle: true,
-              isScrollControlled: true,
-              builder: (context) => const ThemeSettingsBottomSheet(),
-            );
-          },
-          icon: const Icon(Icons.palette_outlined),
-        ),
-        IconButton(
-          onPressed: () {
-            Navigator.pushNamed(context, AppRoutes.history);
-          },
-          icon: const Icon(Icons.history),
-        ),
-        IconButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: const Text('About'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircleAvatar(
-                        radius: 25,
-                        backgroundColor: context.primary,
-                        child: Icon(
-                          Icons.person_2_outlined,
-                          color: context.onPrimary,
-                          size: 25,
-                        ),
-                      ),
-                      20.h,
-                      const Text('Made with <3 by VivekS.'),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-          icon: const Icon(Icons.info_outline_rounded),
-        )
-      ],
-    );
-  }
-
-  Widget _buildFloatingActionButton(BuildContext context, bool isKeyboardOpen) {
-    if (isKeyboardOpen) return const SizedBox.shrink();
-
-    return FloatingActionButton.extended(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const QRScanView(),
+          24.h,
+          Text(
+            'Customize QR',
+            style: Theme.of(context).textTheme.titleLarge,
+            textAlign: TextAlign.center,
           ),
-        );
-      },
-      icon: const Icon(Icons.qr_code_scanner_rounded),
-      label: const Text('Scan QR'),
-      isExtended: _isFabExpanded,
+          24.h,
+          const _QrStylePicker(),
+          24.h,
+          const _QrColorPicker(),
+          24.h,
+          const _QrLogoPicker(),
+        ],
+      ),
     );
   }
 }
@@ -195,12 +54,12 @@ class _QrStylePicker extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'QR Style',
+          'Style',
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
-        8.h,
+        12.h,
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -219,7 +78,7 @@ class _QrStylePicker extends ConsumerWidget {
                   },
                   showCheckmark: false,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                 ),
               );
@@ -232,11 +91,7 @@ class _QrStylePicker extends ConsumerWidget {
 
   void _updateShape(WidgetRef ref, QrShape shape) {
     final generator = ref.read(generatorProvider.notifier);
-
-    // We update the shape in the state
     generator.updateState(shape: shape);
-
-    // Trigger re-generation of the image with the new shape
     generator.generateImage();
   }
 }
@@ -263,7 +118,7 @@ class _QrColorPicker extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'QR Color',
+          'Color',
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -289,9 +144,7 @@ class _QrColorPicker extends ConsumerWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: isSelected
-                          ? context.primary
-                          : Colors.transparent,
+                      color: isSelected ? context.primary : Colors.transparent,
                       width: 2,
                     ),
                   ),
@@ -386,7 +239,7 @@ class _QrLogoPicker extends ConsumerWidget {
               OutlinedButton.icon(
                 onPressed: () => _clearLogo(ref),
                 icon: const Icon(Icons.close_rounded, size: 18),
-                label: const Text('Clear'),
+                label: const Text('Remove'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: context.error,
                   side: BorderSide(color: context.error.withOpacity(0.5)),
@@ -394,11 +247,13 @@ class _QrLogoPicker extends ConsumerWidget {
               ),
             ] else ...[
               16.w,
-              Text(
-                'Add a brand logo to your QR',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: context.onSurfaceVariant,
-                    ),
+              Expanded(
+                child: Text(
+                  'Embed a logo',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: context.onSurfaceVariant,
+                      ),
+                ),
               ),
             ],
           ],

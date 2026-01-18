@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:easy_qr_toolkit/features/generator/generator_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
@@ -106,13 +105,16 @@ class QRService {
     return Uint8List.fromList(img.encodePng(paddedImage));
   }
 
-  /// Shares an image
-  Future<void> shareImage(Uint8List imageBytes) async {
+  /// Shares an image with optional caption
+  Future<void> shareImage(Uint8List imageBytes, {String? caption}) async {
     try {
       final tempDir = await getTemporaryDirectory();
       final file = await File('${tempDir.path}/shared_qr.png').create();
       await file.writeAsBytes(imageBytes);
-      await Share.shareXFiles([XFile(file.path)]);
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        text: caption,
+      );
     } catch (e) {
       debugPrint('Error sharing image: $e');
     }

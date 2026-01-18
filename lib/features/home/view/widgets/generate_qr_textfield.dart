@@ -1,11 +1,12 @@
 import 'dart:ui';
 
 import 'package:easy_qr_toolkit/core/services/qr_service.dart';
-import 'package:easy_qr_toolkit/features/generator/generator_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
+
+import '../../generator_provider.dart';
 
 class ModernQRInputCard extends ConsumerStatefulWidget {
   const ModernQRInputCard({super.key});
@@ -16,6 +17,12 @@ class ModernQRInputCard extends ConsumerStatefulWidget {
 
 class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
   final TextEditingController _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.text = ref.read(generatorProvider).data;
+  }
 
   @override
   void dispose() {
@@ -36,7 +43,6 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
           controller: _controller,
           onChanged: (data) => _onTextChanged(data, ref),
           inputFormatters: [
-            // Prevent entering newlines to keep input simple
             FilteringTextInputFormatter.deny(RegExp(r'\n')),
           ],
           textInputAction: TextInputAction.done,
@@ -47,9 +53,9 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
             height: 1.5,
           ),
           decoration: InputDecoration(
-            hintText: 'What would you like to share?',
+            hintText: 'Type to generate QR...',
             hintStyle: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7),
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
             ),
             filled: true,
             fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
@@ -58,6 +64,16 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.all(24),
+            suffixIcon: generatorData.data.isNotEmpty
+                ? IconButton(
+                    icon: const Icon(Icons.clear_rounded),
+                    onPressed: () {
+                      _controller.clear();
+                      generator.reset();
+                    },
+                    tooltip: 'Clear text',
+                  )
+                : null,
           ),
         ),
         const SizedBox(height: 12),
@@ -75,19 +91,6 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
             icon: const Icon(Icons.paste_rounded, size: 18),
             label: const Text('Paste from Clipboard'),
             style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            ),
-          ),
-        if (generatorData.data.isNotEmpty)
-          TextButton.icon(
-            onPressed: () {
-              _controller.clear();
-              generator.reset();
-            },
-            icon: const Icon(Icons.clear_rounded, size: 18),
-            label: const Text('Clear text'),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
           ),
