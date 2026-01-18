@@ -42,19 +42,17 @@ class GeneratedQRCard extends ConsumerWidget {
           ),
           child: Column(
             children: [
-              AnimatedSize(
+              AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                child: SizedBox(
-                  width: isCompact ? 120 : 220,
-                  height: isCompact ? 120 : 220,
-                  child: PrettyQrView.data(
-                    data: generatorState.data,
-                    decoration: qrService.getDecoration(
-                      generatorState.shape,
-                      generatorState.qrColor,
-                      generatorState.logo,
-                    ),
+                curve: Curves.easeOutCubic,
+                width: isCompact ? 120 : 220,
+                height: isCompact ? 120 : 220,
+                child: PrettyQrView.data(
+                  data: generatorState.data,
+                  decoration: qrService.getDecoration(
+                    generatorState.shape,
+                    generatorState.qrColor,
+                    generatorState.logo,
                   ),
                 ),
               ),

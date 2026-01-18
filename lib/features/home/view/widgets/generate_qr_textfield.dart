@@ -50,15 +50,21 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
           maxLines: null,
           keyboardType: TextInputType.text,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            height: 1.5,
-          ),
+                height: 1.5,
+              ),
           decoration: InputDecoration(
             hintText: 'Type to generate QR...',
             hintStyle: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurfaceVariant
+                  .withOpacity(0.5),
             ),
             filled: true,
-            fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            fillColor: Theme.of(context)
+                .colorScheme
+                .surfaceContainerHighest
+                .withValues(alpha: 0.3),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(20),
               borderSide: BorderSide.none,
@@ -80,7 +86,8 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
         if (generatorData.data.isEmpty)
           FilledButton.tonalIcon(
             onPressed: () async {
-              final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+              final clipboardData =
+                  await Clipboard.getData(Clipboard.kTextPlain);
               if (clipboardData != null &&
                   clipboardData.text != null &&
                   clipboardData.text!.isNotEmpty) {
