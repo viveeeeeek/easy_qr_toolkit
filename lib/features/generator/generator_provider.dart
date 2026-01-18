@@ -2,15 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../core/enums/qr_shape.dart';
 import '../../core/services/qr_service.dart';
 
 part 'generator_provider.g.dart';
-
-enum QrShape {
-  smooth,
-  rounded,
-  sharp,
-}
 
 class GeneratorState {
   final String data;

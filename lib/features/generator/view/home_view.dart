@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 import '../../../core/services/qr_service.dart';
+import 'package:easy_qr_toolkit/core/enums/qr_shape.dart';
 import 'package:easy_qr_toolkit/features/settings/view/theme_settings_bottom_sheet.dart';
 import 'widgets/generate_qr_textfield.dart';
 import 'widgets/generated_qr_card.dart';

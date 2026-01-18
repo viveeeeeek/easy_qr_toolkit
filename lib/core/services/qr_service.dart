@@ -13,6 +13,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:saver_gallery/saver_gallery.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../enums/qr_shape.dart';
+
 part 'qr_service.g.dart';
 
 @Riverpod(keepAlive: true)
