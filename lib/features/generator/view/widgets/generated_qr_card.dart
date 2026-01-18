@@ -49,7 +49,10 @@ class GeneratedQRCard extends ConsumerWidget {
                   height: isCompact ? 120 : 220,
                   child: PrettyQrView.data(
                     data: generatorState.data,
-                    decoration: qrService.getDecoration(generatorState.shape),
+                    decoration: qrService.getDecoration(
+                      generatorState.shape,
+                      generatorState.qrColor,
+                    ),
                   ),
                 ),
               ),

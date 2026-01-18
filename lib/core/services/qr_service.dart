@@ -134,13 +134,14 @@ class QRService {
   Future<Uint8List?> generateFullQrImage({
     required String data,
     required QrShape shape,
+    required Color color,
   }) async {
     final qrImage = generateQrImageObject(data);
 
     final qrImageAsBytes = await qrImage.toImageAsBytes(
       size: 512,
       format: ImageByteFormat.png,
-      decoration: getDecoration(shape),
+      decoration: getDecoration(shape, color),
     );
 
     if (qrImageAsBytes == null) return null;
@@ -148,18 +149,21 @@ class QRService {
     return generatePaddedQrImage(qrImageAsBytes.buffer.asUint8List());
   }
 
-  /// Returns the decoration based on the selected shape
-  PrettyQrDecoration getDecoration(QrShape shape) {
+  /// Returns the decoration based on the selected shape and color
+  PrettyQrDecoration getDecoration(QrShape shape, Color color) {
     return PrettyQrDecoration(
       shape: shape == QrShape.smooth
-          ? const PrettyQrSmoothSymbol(
+          ? PrettyQrSmoothSymbol(
+              color: color,
               roundFactor: 1.0, // Fully rounded for clear contrast
             )
           : shape == QrShape.rounded
               ? PrettyQrRoundedSymbol(
+                  color: color,
                   borderRadius: BorderRadius.circular(8),
                 )
-              : const PrettyQrSmoothSymbol(
+              : PrettyQrSmoothSymbol(
+                  color: color,
                   roundFactor: 0.0, // Perfectly sharp
                 ),
     );

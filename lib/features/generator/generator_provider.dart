@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -10,22 +13,26 @@ part 'generator_provider.g.dart';
 class GeneratorState {
   final String data;
   final QrShape shape;
+  final Color qrColor;
   final Uint8List? generatedQrImage;
 
   const GeneratorState({
     this.data = '',
     this.shape = QrShape.smooth,
+    this.qrColor = Colors.black,
     this.generatedQrImage,
   });
 
   GeneratorState copyWith({
     String? data,
     QrShape? shape,
+    Color? qrColor,
     Uint8List? generatedQrImage,
   }) {
     return GeneratorState(
       data: data ?? this.data,
       shape: shape ?? this.shape,
+      qrColor: qrColor ?? this.qrColor,
       generatedQrImage: generatedQrImage ?? this.generatedQrImage,
     );
   }
@@ -36,12 +43,16 @@ class GeneratorState {
     return other is GeneratorState &&
         other.data == data &&
         other.shape == shape &&
+        other.qrColor == qrColor &&
         listEquals(other.generatedQrImage, generatedQrImage);
   }
 
   @override
   int get hashCode =>
-      data.hashCode ^ shape.hashCode ^ generatedQrImage.hashCode;
+      data.hashCode ^
+      shape.hashCode ^
+      qrColor.hashCode ^
+      generatedQrImage.hashCode;
 }
 
 @riverpod
@@ -55,11 +66,13 @@ class Generator extends _$Generator {
     String? data,
     Uint8List? generatedQrImage,
     QrShape? shape,
+    Color? qrColor,
   }) {
     state = state.copyWith(
       data: data,
       generatedQrImage: generatedQrImage,
       shape: shape,
+      qrColor: qrColor,
     );
   }
 
@@ -75,6 +88,7 @@ class Generator extends _$Generator {
     final paddedQrBytes = await qrService.generateFullQrImage(
       data: data,
       shape: state.shape,
+      color: state.qrColor,
     );
 
     // Race condition check: Ensure the data hasn't changed while we were generating

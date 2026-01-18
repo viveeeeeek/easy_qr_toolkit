@@ -75,6 +75,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     (isKeyboardOpen ? 8.h : 24.h),
                     if (generatorState.data.isNotEmpty) ...[
                       const _QrStylePicker(),
+                      (isKeyboardOpen ? 8.h : 20.h),
+                      const _QrColorPicker(),
                       (isKeyboardOpen ? 8.h : 24.h),
                     ],
                     AnimatedSwitcher(
@@ -230,6 +232,91 @@ class _QrStylePicker extends ConsumerWidget {
     generator.updateState(shape: shape);
 
     // Trigger re-generation of the image with the new shape
+    generator.generateImage();
+  }
+}
+
+class _QrColorPicker extends ConsumerWidget {
+  const _QrColorPicker();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedColor = ref.watch(generatorProvider.select((s) => s.qrColor));
+
+    // Curated M3-safe colors for QR codes (high contrast)
+    final colors = [
+      Colors.black,
+      context.primary,
+      context.secondary,
+      const Color(0xFF1B5E20), // Deep Green
+      const Color(0xFF0D47A1), // Deep Blue
+      const Color(0xFFB71C1C), // Deep Red
+      const Color(0xFF4A148C), // Deep Purple
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'QR Color',
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+        ),
+        12.h,
+        SizedBox(
+          height: 48,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: colors.length,
+            separatorBuilder: (context, index) => 12.w,
+            itemBuilder: (context, index) {
+              final color = colors[index];
+              final isSelected = color.value == selectedColor.value;
+
+              return GestureDetector(
+                onTap: () => _updateColor(ref, color),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  width: 44,
+                  height: 44,
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isSelected
+                          ? context.primary
+                          : Colors.transparent,
+                      width: 2,
+                    ),
+                  ),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        if (isSelected)
+                          BoxShadow(
+                            color: color.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _updateColor(WidgetRef ref, Color color) {
+    final generator = ref.read(generatorProvider.notifier);
+    generator.updateState(qrColor: color);
     generator.generateImage();
   }
 }
