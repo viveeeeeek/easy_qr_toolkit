@@ -85,12 +85,11 @@ class QRService {
   }
 
   /// Generates a high-quality QR image with white padding from existing bytes
-  Future<Uint8List?> generatePaddedQrImage(Uint8List qrBytes) async {
+  Future<Uint8List?> generatePaddedQrImage(Uint8List qrBytes, {int padding = 32}) async {
     final img.Image? decodedQr = img.decodePng(qrBytes);
     if (decodedQr == null) return null;
 
     // Add padding (approx 5% of size)
-    const int padding = 32;
     final int totalSize = decodedQr.width + (padding * 2);
 
     final img.Image paddedImage =
@@ -142,14 +141,15 @@ class QRService {
     final qrImage = generateQrImageObject(data);
 
     final qrImageAsBytes = await qrImage.toImageAsBytes(
-      size: 512,
+      size: 2048,
       format: ImageByteFormat.png,
       decoration: getDecoration(shape, color, logo),
     );
 
     if (qrImageAsBytes == null) return null;
 
-    return generatePaddedQrImage(qrImageAsBytes.buffer.asUint8List());
+    // Use a larger padding for the larger image
+    return generatePaddedQrImage(qrImageAsBytes.buffer.asUint8List(), padding: 128);
   }
 
   /// Returns the decoration based on the selected shape, color, and optional logo
@@ -173,6 +173,7 @@ class QRService {
           ? PrettyQrDecorationImage(
               image: FileImage(logo),
               position: PrettyQrDecorationImagePosition.embedded,
+              scale: 0.2, // Default scale, can be exposed to user later
             )
           : null,
     );
