@@ -16,6 +16,7 @@ class GeneratorState {
   final QrShape shape;
   final Color qrColor;
   final File? logo;
+  final double logoScale; // 0.1 to 0.3
   final Uint8List? generatedQrImage;
   // Cache the logical QR object to avoid main-thread re-computation in UI
   final QrImage? qrImageObject;
@@ -25,6 +26,7 @@ class GeneratorState {
     this.shape = QrShape.smooth,
     this.qrColor = Colors.black,
     this.logo,
+    this.logoScale = 0.2,
     this.generatedQrImage,
     this.qrImageObject,
   });
@@ -35,6 +37,7 @@ class GeneratorState {
     Color? qrColor,
     File? logo,
     bool clearLogo = false,
+    double? logoScale,
     Uint8List? generatedQrImage,
     QrImage? qrImageObject,
   }) {
@@ -43,6 +46,7 @@ class GeneratorState {
       shape: shape ?? this.shape,
       qrColor: qrColor ?? this.qrColor,
       logo: clearLogo ? null : (logo ?? this.logo),
+      logoScale: logoScale ?? this.logoScale,
       generatedQrImage: generatedQrImage ?? this.generatedQrImage,
       qrImageObject: qrImageObject ?? this.qrImageObject,
     );
@@ -56,6 +60,7 @@ class GeneratorState {
         other.shape == shape &&
         other.qrColor == qrColor &&
         other.logo?.path == logo?.path &&
+        other.logoScale == logoScale &&
         listEquals(other.generatedQrImage, generatedQrImage) &&
         other.qrImageObject == qrImageObject;
   }
@@ -66,6 +71,7 @@ class GeneratorState {
       shape.hashCode ^
       qrColor.hashCode ^
       logo.hashCode ^
+      logoScale.hashCode ^
       generatedQrImage.hashCode ^
       qrImageObject.hashCode;
 }
@@ -93,49 +99,64 @@ class Generator extends _$Generator {
     Color? qrColor,
     File? logo,
     bool clearLogo = false,
+    double? logoScale,
     QrImage? qrImageObject,
   }) {
+    // Check if visual properties are changing (affects export but not QR matrix)
+    final isVisualChange = shape != null || qrColor != null || logo != null || clearLogo || logoScale != null;
+    
     state = state.copyWith(
       data: data,
-      generatedQrImage: generatedQrImage,
+      generatedQrImage: isVisualChange ? null : generatedQrImage, // Invalidate cache on visual change
       shape: shape,
       qrColor: qrColor,
       logo: logo,
       clearLogo: clearLogo,
+      logoScale: logoScale,
       qrImageObject: qrImageObject,
     );
   }
 
+  /// Called when user types new data - generates QR matrix in isolate
   Future<void> generateImage([String? overrideData]) async {
     final data = overrideData ?? state.data;
     if (data.isEmpty) return;
-
-    final qrService = ref.read(qrServiceProvider);
 
     // 1. Offload Heavy Math to Isolate
     // This returns the standard QrImage object (logic only, no pixels)
     final qrImageObject = await compute(_generateQrIsolate, data);
 
-    // Initial state update with the calculated QR object
-    // This allows the UI to render the PrettyQrView immediately without blocking
-    updateState(data: data, qrImageObject: qrImageObject);
-
-    // 2. Generate Full Image for Sharing/Saving (Still async but less urgent)
-    final paddedQrBytes = await qrService.generateFullQrImage(
+    // Update state with calculated QR object - preview will work immediately
+    state = state.copyWith(
       data: data,
+      qrImageObject: qrImageObject,
+      generatedQrImage: null, // Invalidate old export
+    );
+  }
+
+  /// Lazily generates the high-res export image only when needed (Save/Share)
+  Future<Uint8List?> ensureExportImage() async {
+    // If we already have a cached export, return it
+    if (state.generatedQrImage != null) {
+      return state.generatedQrImage;
+    }
+
+    // Generate the export image
+    final qrService = ref.read(qrServiceProvider);
+    final paddedQrBytes = await qrService.generateFullQrImage(
+      data: state.data,
       shape: state.shape,
       color: state.qrColor,
       logo: state.logo,
+      logoScale: state.logoScale,
     );
 
-    // Race condition check: Ensure the data hasn't changed while we were generating
-    if (state.data != data || paddedQrBytes == null) return;
+    if (paddedQrBytes != null) {
+      // Cache it for future use
+      state = state.copyWith(generatedQrImage: paddedQrBytes);
+    }
 
-    updateState(
-      data: data,
-      generatedQrImage: paddedQrBytes,
-      // No need to pass qrImageObject again, it's already there
-    );
+    return paddedQrBytes;
   }
 
   void reset() {

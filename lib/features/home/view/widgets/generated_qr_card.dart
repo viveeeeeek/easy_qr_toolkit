@@ -8,21 +8,31 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 import '../../generator_provider.dart';
 
-class GeneratedQRCard extends ConsumerWidget {
+class GeneratedQRCard extends ConsumerStatefulWidget {
   const GeneratedQRCard({super.key, this.isCompact = false});
 
   final bool isCompact;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GeneratedQRCard> createState() => _GeneratedQRCardState();
+}
+
+class _GeneratedQRCardState extends ConsumerState<GeneratedQRCard> {
+  bool _isSaving = false;
+  bool _isSharing = false;
+
+  @override
+  Widget build(BuildContext context) {
     // Use selectors to minimize rebuilds - only rebuild when these specific fields change
     final qrImageObject = ref.watch(generatorProvider.select((s) => s.qrImageObject));
     final data = ref.watch(generatorProvider.select((s) => s.data));
     final shape = ref.watch(generatorProvider.select((s) => s.shape));
     final qrColor = ref.watch(generatorProvider.select((s) => s.qrColor));
     final logo = ref.watch(generatorProvider.select((s) => s.logo));
-    final generatedQrImage = ref.watch(generatorProvider.select((s) => s.generatedQrImage));
+    final logoScale = ref.watch(generatorProvider.select((s) => s.logoScale));
     final qrService = ref.watch(qrServiceProvider);
+
+    final isCompact = widget.isCompact;
 
     if (data.isEmpty) {
       return const SizedBox.shrink();
@@ -62,6 +72,7 @@ class GeneratedQRCard extends ConsumerWidget {
                               shape,
                               qrColor,
                               logo,
+                              logoScale,
                             ),
                           )
                         : PrettyQrView.data(
@@ -70,6 +81,7 @@ class GeneratedQRCard extends ConsumerWidget {
                               shape,
                               qrColor,
                               logo,
+                              logoScale,
                             ),
                           ),
                   ),
@@ -81,26 +93,22 @@ class GeneratedQRCard extends ConsumerWidget {
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             height: isCompact ? 40 : 56,
-            // Shrink button height slightly or just keep regular
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 FilledButton.icon(
-                  onPressed: () async {
-                    if (generatedQrImage != null) {
-                      final success = await ref
-                          .read(qrServiceProvider)
-                          .saveToGallery(generatedQrImage);
-                      if (success && context.mounted) {
-                        showSnackBar(
-                          context: context,
-                          message: 'QR Code saved to gallery',
-                        );
-                      }
-                    }
-                  },
-                  icon: const Icon(Icons.download_rounded, size: 20),
-                  label: const Text('Save'),
+                  onPressed: _isSaving ? null : _handleSave,
+                  icon: _isSaving
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.download_rounded, size: 20),
+                  label: Text(_isSaving ? 'Saving...' : 'Save'),
                   style: FilledButton.styleFrom(
                     padding: EdgeInsets.symmetric(
                         horizontal: isCompact ? 16 : 24,
@@ -112,18 +120,18 @@ class GeneratedQRCard extends ConsumerWidget {
                 ),
                 const SizedBox(width: 16),
                 FilledButton.tonalIcon(
-                  onPressed: () {
-                    if (generatedQrImage != null) {
-                      ref
-                          .read(qrServiceProvider)
-                          .shareImage(
-                            generatedQrImage,
-                            caption: 'Generated with Easy QR Toolkit\nhttps://play.google.com/store/apps/details?id=com.billionants.easy_qr_toolkit',
-                          );
-                    }
-                  },
-                  icon: const Icon(Icons.share_rounded, size: 20),
-                  label: const Text('Share'),
+                  onPressed: _isSharing ? null : _handleShare,
+                  icon: _isSharing
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: context.primary,
+                          ),
+                        )
+                      : const Icon(Icons.share_rounded, size: 20),
+                  label: Text(_isSharing ? 'Preparing...' : 'Share'),
                   style: FilledButton.styleFrom(
                     padding: EdgeInsets.symmetric(
                         horizontal: isCompact ? 16 : 24,
@@ -139,5 +147,50 @@ class GeneratedQRCard extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _handleSave() async {
+    setState(() => _isSaving = true);
+    try {
+      final exportImage = await ref
+          .read(generatorProvider.notifier)
+          .ensureExportImage();
+      if (exportImage != null && mounted) {
+        final success = await ref
+            .read(qrServiceProvider)
+            .saveToGallery(exportImage);
+        if (success && mounted) {
+          showSnackBar(
+            context: context,
+            message: 'QR Code saved to gallery',
+          );
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  Future<void> _handleShare() async {
+    setState(() => _isSharing = true);
+    try {
+      final exportImage = await ref
+          .read(generatorProvider.notifier)
+          .ensureExportImage();
+      if (exportImage != null) {
+        ref
+            .read(qrServiceProvider)
+            .shareImage(
+              exportImage,
+              caption: 'Generated with Easy QR Toolkit\nhttps://play.google.com/store/apps/details?id=com.billionants.easy_qr_toolkit',
+            );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSharing = false);
+      }
+    }
   }
 }

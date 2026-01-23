@@ -137,23 +137,24 @@ class QRService {
     required QrShape shape,
     required Color color,
     File? logo,
+    double logoScale = 0.2,
   }) async {
     final qrImage = generateQrImageObject(data);
 
     final qrImageAsBytes = await qrImage.toImageAsBytes(
-      size: 2048,
+      size: 1024, // Good balance of quality vs speed
       format: ImageByteFormat.png,
-      decoration: getDecoration(shape, color, logo),
+      decoration: getDecoration(shape, color, logo, logoScale),
     );
 
     if (qrImageAsBytes == null) return null;
 
-    // Use a larger padding for the larger image
-    return generatePaddedQrImage(qrImageAsBytes.buffer.asUint8List(), padding: 128);
+    // Use proportional padding for the image
+    return generatePaddedQrImage(qrImageAsBytes.buffer.asUint8List(), padding: 64);
   }
 
   /// Returns the decoration based on the selected shape, color, and optional logo
-  PrettyQrDecoration getDecoration(QrShape shape, Color color, [File? logo]) {
+  PrettyQrDecoration getDecoration(QrShape shape, Color color, [File? logo, double scale = 0.2]) {
     return PrettyQrDecoration(
       shape: shape == QrShape.smooth
           ? PrettyQrSmoothSymbol(
@@ -173,7 +174,7 @@ class QRService {
           ? PrettyQrDecorationImage(
               image: FileImage(logo),
               position: PrettyQrDecorationImagePosition.embedded,
-              scale: 0.2, // Default scale, can be exposed to user later
+              scale: scale,
             )
           : null,
     );

@@ -185,6 +185,7 @@ class _QrLogoPicker extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedLogo = ref.watch(generatorProvider.select((s) => s.logo));
+    final logoScale = ref.watch(generatorProvider.select((s) => s.logoScale));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,14 +237,43 @@ class _QrLogoPicker extends ConsumerWidget {
             ),
             if (selectedLogo != null) ...[
               16.w,
-              OutlinedButton.icon(
-                onPressed: () => _clearLogo(ref),
-                icon: const Icon(Icons.close_rounded, size: 18),
-                label: const Text('Remove'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: context.error,
-                  side: BorderSide(color: context.error.withOpacity(0.5)),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Size',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    8.h,
+                    SegmentedButton<double>(
+                      segments: const [
+                        ButtonSegment(value: 0.15, label: Text('Small')),
+                        ButtonSegment(value: 0.20, label: Text('Medium')),
+                        ButtonSegment(value: 0.25, label: Text('Large')),
+                      ],
+                      selected: {logoScale},
+                      onSelectionChanged: (Set<double> newSelection) {
+                        ref.read(generatorProvider.notifier).updateState(
+                              logoScale: newSelection.first,
+                            );
+                      },
+                      style: ButtonStyle(
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                        padding: WidgetStateProperty.all(EdgeInsets.zero),
+                      ),
+                      showSelectedIcon: false,
+                    ),
+                  ],
                 ),
+              ),
+              8.w,
+              IconButton(
+                onPressed: () => _clearLogo(ref),
+                icon: const Icon(Icons.close_rounded),
+                color: context.error,
+                tooltip: 'Remove',
               ),
             ] else ...[
               16.w,
