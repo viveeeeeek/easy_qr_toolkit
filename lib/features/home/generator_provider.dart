@@ -17,6 +17,8 @@ class GeneratorState {
   final Color qrColor;
   final File? logo;
   final Uint8List? generatedQrImage;
+  // Cache the logical QR object to avoid main-thread re-computation in UI
+  final QrImage? qrImageObject;
 
   const GeneratorState({
     this.data = '',
@@ -24,6 +26,7 @@ class GeneratorState {
     this.qrColor = Colors.black,
     this.logo,
     this.generatedQrImage,
+    this.qrImageObject,
   });
 
   GeneratorState copyWith({
@@ -33,6 +36,7 @@ class GeneratorState {
     File? logo,
     bool clearLogo = false,
     Uint8List? generatedQrImage,
+    QrImage? qrImageObject,
   }) {
     return GeneratorState(
       data: data ?? this.data,
@@ -40,6 +44,7 @@ class GeneratorState {
       qrColor: qrColor ?? this.qrColor,
       logo: clearLogo ? null : (logo ?? this.logo),
       generatedQrImage: generatedQrImage ?? this.generatedQrImage,
+      qrImageObject: qrImageObject ?? this.qrImageObject,
     );
   }
 
@@ -51,7 +56,8 @@ class GeneratorState {
         other.shape == shape &&
         other.qrColor == qrColor &&
         other.logo?.path == logo?.path &&
-        listEquals(other.generatedQrImage, generatedQrImage);
+        listEquals(other.generatedQrImage, generatedQrImage) &&
+        other.qrImageObject == qrImageObject;
   }
 
   @override
@@ -60,7 +66,17 @@ class GeneratorState {
       shape.hashCode ^
       qrColor.hashCode ^
       logo.hashCode ^
-      generatedQrImage.hashCode;
+      generatedQrImage.hashCode ^
+      qrImageObject.hashCode;
+}
+
+// Independent function for Isolate
+QrImage _generateQrIsolate(String data) {
+  final qrCode = QrCode.fromData(
+    data: data,
+    errorCorrectLevel: QrErrorCorrectLevel.H,
+  );
+  return QrImage(qrCode);
 }
 
 @riverpod
@@ -77,6 +93,7 @@ class Generator extends _$Generator {
     Color? qrColor,
     File? logo,
     bool clearLogo = false,
+    QrImage? qrImageObject,
   }) {
     state = state.copyWith(
       data: data,
@@ -85,6 +102,7 @@ class Generator extends _$Generator {
       qrColor: qrColor,
       logo: logo,
       clearLogo: clearLogo,
+      qrImageObject: qrImageObject,
     );
   }
 
@@ -94,9 +112,15 @@ class Generator extends _$Generator {
 
     final qrService = ref.read(qrServiceProvider);
 
-    // Initial state update
-    updateState(data: data);
+    // 1. Offload Heavy Math to Isolate
+    // This returns the standard QrImage object (logic only, no pixels)
+    final qrImageObject = await compute(_generateQrIsolate, data);
 
+    // Initial state update with the calculated QR object
+    // This allows the UI to render the PrettyQrView immediately without blocking
+    updateState(data: data, qrImageObject: qrImageObject);
+
+    // 2. Generate Full Image for Sharing/Saving (Still async but less urgent)
     final paddedQrBytes = await qrService.generateFullQrImage(
       data: data,
       shape: state.shape,
@@ -110,6 +134,7 @@ class Generator extends _$Generator {
     updateState(
       data: data,
       generatedQrImage: paddedQrBytes,
+      // No need to pass qrImageObject again, it's already there
     );
   }
 

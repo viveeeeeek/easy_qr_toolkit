@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:async';
 
 import 'package:easy_qr_toolkit/core/services/qr_service.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +17,7 @@ class ModernQRInputCard extends ConsumerStatefulWidget {
 
 class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
   final TextEditingController _controller = TextEditingController();
+  Timer? _debounceTimer;
 
   @override
   void initState() {
@@ -26,6 +27,7 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -105,14 +107,20 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
     );
   }
 
-  Future<void> _onTextChanged(String data, WidgetRef ref) async {
+  void _onTextChanged(String data, WidgetRef ref) {
     final generator = ref.read(generatorProvider.notifier);
+
+    if (_debounceTimer?.isActive ?? false) {
+      _debounceTimer!.cancel();
+    }
 
     if (data.trim().isEmpty) {
       generator.reset();
       return;
     }
 
-    await generator.generateImage(data);
+    _debounceTimer = Timer(const Duration(milliseconds: 350), () {
+       generator.generateImage(data);
+    });
   }
 }
