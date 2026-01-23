@@ -9,7 +9,17 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 import '../../generator_provider.dart';
 
 class ModernQRInputCard extends ConsumerStatefulWidget {
-  const ModernQRInputCard({super.key});
+  const ModernQRInputCard({
+    super.key, 
+    this.focusNode,
+    this.onTypingStateChanged,
+  });
+
+  /// Optional external focus node for route-aware focus management
+  final FocusNode? focusNode;
+  
+  /// Callback when typing state changes (true = has text, false = empty)
+  final ValueChanged<bool>? onTypingStateChanged;
 
   @override
   ConsumerState<ModernQRInputCard> createState() => _ModernQRInputCardState();
@@ -23,6 +33,10 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
   void initState() {
     super.initState();
     _controller.text = ref.read(generatorProvider).data;
+    // Notify parent of initial state
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.onTypingStateChanged?.call(_controller.text.isNotEmpty);
+    });
   }
 
   @override
@@ -42,6 +56,7 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         TextField(
+          focusNode: widget.focusNode,
           controller: _controller,
           onChanged: (data) => _onTextChanged(data, ref),
           inputFormatters: [
@@ -78,6 +93,8 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
                     onPressed: () {
                       _controller.clear();
                       generator.reset();
+                      // Notify parent that typing stopped
+                      widget.onTypingStateChanged?.call(false);
                     },
                     tooltip: 'Clear text',
                   )
@@ -85,7 +102,8 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
           ),
         ),
         const SizedBox(height: 12),
-        if (generatorData.data.isEmpty)
+        // Hide paste button immediately when user types (check controller, not provider)
+        if (_controller.text.isEmpty)
           FilledButton.tonalIcon(
             onPressed: () async {
               final clipboardData =
@@ -109,6 +127,9 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
 
   void _onTextChanged(String data, WidgetRef ref) {
     final generator = ref.read(generatorProvider.notifier);
+    
+    // Notify parent immediately about typing state
+    widget.onTypingStateChanged?.call(data.trim().isNotEmpty);
 
     if (_debounceTimer?.isActive ?? false) {
       _debounceTimer!.cancel();

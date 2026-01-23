@@ -18,10 +18,12 @@ class HomeView extends ConsumerStatefulWidget {
   ConsumerState<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends ConsumerState<HomeView> {
+class _HomeViewState extends ConsumerState<HomeView> with RouteAware {
   final ScrollController _scrollController = ScrollController();
+  final FocusNode _inputFocusNode = FocusNode();
   bool _isFabExpanded = true;
   bool _isCustomizing = false;
+  bool _isTyping = false;
 
   @override
   void initState() {
@@ -30,10 +32,29 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Subscribe to route changes to handle focus
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      AppRoutes.routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
   void dispose() {
+    AppRoutes.routeObserver.unsubscribe(this);
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
+    _inputFocusNode.dispose();
     super.dispose();
+  }
+
+  // Called when returning to this route from another
+  @override
+  void didPopNext() {
+    // Unfocus when returning from another screen
+    _inputFocusNode.unfocus();
   }
 
   void _scrollListener() {
@@ -50,6 +71,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
     final hasData = ref.watch(generatorProvider.select((s) => s.data.isNotEmpty));
     final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 100;
 
+    // FAB visibility: hide when user is typing (keyboard open + started typing) OR customizing
+    final shouldHideFab = (isKeyboardOpen && _isTyping) || _isCustomizing;
+    
+    // FAB expansion: minimize when QR is generated OR scrolled
+    final shouldExpandFab = _isFabExpanded && !hasData;
+
     return Scaffold(
       body: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -61,8 +88,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
               centerTitle: false,
               actions: [
                 IconButton(
-                  onPressed: () =>
-                      Navigator.pushNamed(context, AppRoutes.history),
+                  onPressed: () {
+                    // Unfocus before navigating
+                    _inputFocusNode.unfocus();
+                    Navigator.pushNamed(context, AppRoutes.history);
+                  },
                   icon: const Icon(Icons.history_rounded),
                   tooltip: 'History',
                 ),
@@ -89,7 +119,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     curve: Curves.easeInOutCubicEmphasized,
                     child: _isCustomizing 
                       ? const SizedBox.shrink() 
-                      : const ModernQRInputCard(),
+                      : ModernQRInputCard(
+                          focusNode: _inputFocusNode,
+                          onTypingStateChanged: (isTyping) {
+                            if (_isTyping != isTyping) {
+                              setState(() => _isTyping = isTyping);
+                            }
+                          },
+                        ),
                   ),
                   // Use AnimatedSwitcher instead of AnimatedCrossFade for better performance
                   // AnimatedSwitcher only builds the CURRENT child, not both.
@@ -155,10 +192,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
           ],
         ),
       ),
-      floatingActionButton: isKeyboardOpen || _isCustomizing
+      floatingActionButton: shouldHideFab
           ? null
           : FloatingActionButton.extended(
               onPressed: () {
+                // Unfocus before navigating
+                _inputFocusNode.unfocus();
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const QRScanView()),
@@ -166,7 +205,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               },
               icon: const Icon(Icons.qr_code_scanner_rounded),
               label: const Text('Scan QR'),
-              isExtended: _isFabExpanded,
+              isExtended: shouldExpandFab,
             ),
     );
   }
