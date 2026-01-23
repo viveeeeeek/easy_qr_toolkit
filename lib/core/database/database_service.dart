@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:easy_qr_toolkit/features/history/scan_data_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -24,7 +25,7 @@ class DatabaseService {
 
   // Private constructor
   DatabaseService._constructor();
-  
+
   Future<Database> get database async {
     if (_db != null) return _db!;
     _db = await getDatabase();
@@ -44,7 +45,8 @@ class DatabaseService {
       },
       onUpgrade: (db, oldVersion, newVersion) {
         if (oldVersion < 2) {
-          db.execute('ALTER TABLE $_scansTableName ADD COLUMN $_columnType TEXT DEFAULT "text"');
+          db.execute(
+              'ALTER TABLE $_scansTableName ADD COLUMN $_columnType TEXT DEFAULT "text"');
           log('Table $_scansTableName upgraded to version 2 (added type column)');
         }
       },
@@ -88,19 +90,39 @@ class DatabaseService {
     }
   }
 
-  /// Get data
+  /// Get data (Lightweight, no images)
   Future<List<ScanDataModel>> getData() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(_scansTableName);
+    // Explicitly select columns excluding image to reduce memory usage and jank
+    final List<Map<String, dynamic>> maps = await db.query(
+      _scansTableName,
+      columns: [_columnId, _columnContent, _columnDate, _columnType],
+    );
     return List.generate(maps.length, (index) {
       return ScanDataModel(
         id: maps[index][_columnId],
         content: maps[index][_columnContent],
         date: maps[index][_columnDate],
-        image: maps[index][_columnImage],
+        image: null,
+        // Image loaded on demand
         type: maps[index][_columnType] ?? 'text',
       );
     });
+  }
+
+  /// Get specific image for a scan ID
+  Future<Uint8List?> getScanImage(int id) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      _scansTableName,
+      columns: [_columnImage],
+      where: '$_columnId = ?',
+      whereArgs: [id],
+    );
+    if (maps.isNotEmpty) {
+      return maps.first[_columnImage] as Uint8List?;
+    }
+    return null;
   }
 
   Future<void> clearAll() async {
