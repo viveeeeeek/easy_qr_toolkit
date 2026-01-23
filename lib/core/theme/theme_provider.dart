@@ -1,7 +1,7 @@
 import 'package:easy_qr_toolkit/core/constants/app_constants.dart';
+import 'package:easy_qr_toolkit/core/providers/shared_preferences_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'theme_provider.g.dart';
 
@@ -32,8 +32,8 @@ class ThemeState {
 @riverpod
 class ThemeController extends _$ThemeController {
   @override
-  FutureOr<ThemeState> build() async {
-    final prefs = await SharedPreferences.getInstance();
+  ThemeState build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
     final isDynamic = prefs.getBool(AppPrefsKeys.isDynamicColor) ?? true;
     final seedColorValue = prefs.getInt(AppPrefsKeys.seedColor);
     final themeModeIndex =
@@ -47,50 +47,29 @@ class ThemeController extends _$ThemeController {
   }
 
   Future<void> toggleDynamicColor(bool value) async {
-    final currentState = state.value;
-    if (currentState == null) return;
-
+    final prefs = ref.read(sharedPreferencesProvider);
+    
     // Optimistically update
-    state = AsyncValue.data(currentState.copyWith(isDynamic: value));
+    state = state.copyWith(isDynamic: value);
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(AppPrefsKeys.isDynamicColor, value);
-    } catch (e, stack) {
-      // Revert on error
-      state = AsyncValue.error(e, stack);
-    }
+    await prefs.setBool(AppPrefsKeys.isDynamicColor, value);
   }
 
   Future<void> setSeedColor(Color color) async {
-    final currentState = state.value;
-    if (currentState == null) return;
+    final prefs = ref.read(sharedPreferencesProvider);
 
-    // Update state directly without loading
-    // Also disable dynamic color when a specific color is chosen
-    state = AsyncValue.data(
-        currentState.copyWith(seedColor: color, isDynamic: false));
+    // Update state directly
+    state = state.copyWith(seedColor: color, isDynamic: false);
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt(AppPrefsKeys.seedColor, color.value);
-      await prefs.setBool(AppPrefsKeys.isDynamicColor, false);
-    } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
-    }
+    await prefs.setInt(AppPrefsKeys.seedColor, color.value);
+    await prefs.setBool(AppPrefsKeys.isDynamicColor, false);
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
-    final currentState = state.value;
-    if (currentState == null) return;
+    final prefs = ref.read(sharedPreferencesProvider);
 
-    state = AsyncValue.data(currentState.copyWith(themeMode: mode));
+    state = state.copyWith(themeMode: mode);
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt(AppPrefsKeys.themeMode, mode.index);
-    } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
-    }
+    await prefs.setInt(AppPrefsKeys.themeMode, mode.index);
   }
 }

@@ -23,9 +23,8 @@ class ThemeSettingsBottomSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeState = ref.watch(themeControllerProvider).valueOrNull;
-
-    if (themeState == null) return const SizedBox();
+    // Provider is now synchronous and always returns a valid state
+    final themeState = ref.watch(themeControllerProvider);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
