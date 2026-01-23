@@ -15,7 +15,7 @@ class QrCustomizationSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 48),
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 64),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
@@ -37,6 +37,7 @@ class QrCustomizationSheet extends ConsumerWidget {
           const _QrColorPicker(),
           24.h,
           const _QrLogoPicker(),
+          16.h, // Extra breathing space at bottom
         ],
       ),
     );
@@ -247,10 +248,10 @@ class _QrLogoPicker extends ConsumerWidget {
                     ),
                     8.h,
                     SegmentedButton<double>(
-                      segments: const [
-                        ButtonSegment(value: 0.15, label: Text('Small')),
-                        ButtonSegment(value: 0.20, label: Text('Medium')),
-                        ButtonSegment(value: 0.25, label: Text('Large')),
+                      segments: [
+                        _sizeSegment(0.15, 'Small'),
+                        _sizeSegment(0.20, 'Medium'),
+                        _sizeSegment(0.25, 'Large'),
                       ],
                       selected: {logoScale},
                       onSelectionChanged: (Set<double> newSelection) {
@@ -311,5 +312,15 @@ class _QrLogoPicker extends ConsumerWidget {
     final generator = ref.read(generatorProvider.notifier);
     generator.updateState(clearLogo: true);
     generator.generateImage();
+  }
+
+  ButtonSegment<double> _sizeSegment(double value, String label) {
+    return ButtonSegment(
+      value: value,
+      label: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Text(label),
+      ),
+    );
   }
 }
