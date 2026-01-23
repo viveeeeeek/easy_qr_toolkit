@@ -46,7 +46,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    final generatorState = ref.watch(generatorProvider);
+    // Only rebuild HomeView if strictly necessary (keyboard or data existence)
+    final hasData = ref.watch(generatorProvider.select((s) => s.data.isNotEmpty));
     final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 100;
 
     return Scaffold(
@@ -90,73 +91,61 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       ? const SizedBox.shrink() 
                       : const ModernQRInputCard(),
                   ),
-                  AnimatedCrossFade(
-                    firstChild: const SizedBox(width: double.infinity),
-                    secondChild: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Dynamic spacing based on keyboard
-                        (isKeyboardOpen ? 16.h : 32.h),
-
-                        // The main QR Card
-                        GeneratedQRCard(isCompact: isKeyboardOpen),
-
-                        if (!isKeyboardOpen && !_isCustomizing) ...[
-                          32.h,
-                          Center(
-                            child: OutlinedButton.icon(
-                              onPressed: () async {
-                                setState(() => _isCustomizing = true);
-                                await showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  showDragHandle: true,
-                                  // barrierColor: Colors.black.withOpacity(0.05), // Nearly transparent but keeps focus logic
-                                  backgroundColor:
-                                      Theme.of(context).scaffoldBackgroundColor,
-                                  builder: (context) =>
-                                      const QrCustomizationSheet(),
-                                );
-                                if (mounted) {
-                                  setState(() => _isCustomizing = false);
-                                }
-                              },
-                              icon: const Icon(Icons.tune_rounded),
-                              label: const Text('Customize Style'),
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 24, vertical: 12),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    crossFadeState: generatorState.data.isEmpty
-                        ? CrossFadeState.showFirst
-                        : CrossFadeState.showSecond,
-                    duration: const Duration(milliseconds: 600),
-                    sizeCurve: Curves.easeOutCubic,
-                    // Use a layout builder to ensure top-center alignment during transition
-                    layoutBuilder: (topChild, topChildKey, bottomChild, bottomChildKey) {
-                      return Stack(
-                        clipBehavior: Clip.none,
-                        alignment: Alignment.topCenter,
-                        children: [
-                          Positioned(
-                            key: bottomChildKey,
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            child: bottomChild,
-                          ),
-                          Positioned(
-                            key: topChildKey,
-                            child: topChild,
-                          ),
-                        ],
+                  // Use AnimatedSwitcher instead of AnimatedCrossFade for better performance
+                  // AnimatedSwitcher only builds the CURRENT child, not both.
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    switchInCurve: Curves.easeOut,
+                    switchOutCurve: Curves.easeIn,
+                    // Simple fade only - no size animation to avoid layout recalculations
+                    transitionBuilder: (child, animation) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
                       );
                     },
+                    child: !hasData
+                        ? const SizedBox.shrink(key: ValueKey('empty'))
+                        : Column(
+                            key: const ValueKey('qr_content'),
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Dynamic spacing based on keyboard
+                              (isKeyboardOpen ? 16.h : 32.h),
+
+                              // The main QR Card
+                              GeneratedQRCard(isCompact: isKeyboardOpen),
+
+                              if (!isKeyboardOpen && !_isCustomizing) ...[
+                                32.h,
+                                Center(
+                                  child: OutlinedButton.icon(
+                                    onPressed: () async {
+                                      setState(() => _isCustomizing = true);
+                                      await showModalBottomSheet(
+                                        context: context,
+                                        isScrollControlled: true,
+                                        showDragHandle: true,
+                                        backgroundColor:
+                                            Theme.of(context).scaffoldBackgroundColor,
+                                        builder: (context) =>
+                                            const QrCustomizationSheet(),
+                                      );
+                                      if (mounted) {
+                                        setState(() => _isCustomizing = false);
+                                      }
+                                    },
+                                    icon: const Icon(Icons.tune_rounded),
+                                    label: const Text('Customize Style'),
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 24, vertical: 12),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
                   ),
                   // Extra padding at bottom for FAB
                   100.h,

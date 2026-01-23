@@ -15,110 +15,129 @@ class GeneratedQRCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final generatorState = ref.watch(generatorProvider);
+    // Use selectors to minimize rebuilds - only rebuild when these specific fields change
+    final qrImageObject = ref.watch(generatorProvider.select((s) => s.qrImageObject));
+    final data = ref.watch(generatorProvider.select((s) => s.data));
+    final shape = ref.watch(generatorProvider.select((s) => s.shape));
+    final qrColor = ref.watch(generatorProvider.select((s) => s.qrColor));
+    final logo = ref.watch(generatorProvider.select((s) => s.logo));
+    final generatedQrImage = ref.watch(generatorProvider.select((s) => s.generatedQrImage));
     final qrService = ref.watch(qrServiceProvider);
 
-    if (generatorState.data.isEmpty) {
+    if (data.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          padding: EdgeInsets.all(isCompact ? 16 : 24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutCubic,
-                width: isCompact ? 120 : 220,
-                height: isCompact ? 120 : 220,
-                child: PrettyQrView.data(
-                  data: generatorState.data,
-                  decoration: qrService.getDecoration(
-                    generatorState.shape,
-                    generatorState.qrColor,
-                    generatorState.logo,
+    return RepaintBoundary(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            padding: EdgeInsets.all(isCompact ? 16 : 24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 12,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  width: isCompact ? 120 : 220,
+                  height: isCompact ? 120 : 220,
+                  child: RepaintBoundary(
+                    child: qrImageObject != null
+                        ? PrettyQrView(
+                            qrImage: qrImageObject,
+                            decoration: qrService.getDecoration(
+                              shape,
+                              qrColor,
+                              logo,
+                            ),
+                          )
+                        : PrettyQrView.data(
+                            data: data,
+                            decoration: qrService.getDecoration(
+                              shape,
+                              qrColor,
+                              logo,
+                            ),
+                          ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        SizedBox(height: isCompact ? 16 : 24),
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          height: isCompact ? 40 : 56,
-          // Shrink button height slightly or just keep regular
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FilledButton.icon(
-                onPressed: () async {
-                  if (generatorState.generatedQrImage != null) {
-                    final success = await ref
-                        .read(qrServiceProvider)
-                        .saveToGallery(generatorState.generatedQrImage!);
-                    if (success && context.mounted) {
-                      showSnackBar(
-                        context: context,
-                        message: 'QR Code saved to gallery',
-                      );
-                    }
-                  }
-                },
-                icon: const Icon(Icons.download_rounded, size: 20),
-                label: const Text('Save'),
-                style: FilledButton.styleFrom(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: isCompact ? 16 : 24,
-                      vertical: isCompact ? 0 : 16),
-                  visualDensity: isCompact
-                      ? VisualDensity.compact
-                      : VisualDensity.standard,
-                ),
-              ),
-              const SizedBox(width: 16),
-              FilledButton.tonalIcon(
-                onPressed: () {
-                  if (generatorState.generatedQrImage != null) {
-                    ref
-                        .read(qrServiceProvider)
-                        .shareImage(
-                          generatorState.generatedQrImage!,
-                          caption: 'Generated with Easy QR Toolkit\nhttps://play.google.com/store/apps/details?id=com.billionants.easy_qr_toolkit',
+          SizedBox(height: isCompact ? 16 : 24),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            height: isCompact ? 40 : 56,
+            // Shrink button height slightly or just keep regular
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FilledButton.icon(
+                  onPressed: () async {
+                    if (generatedQrImage != null) {
+                      final success = await ref
+                          .read(qrServiceProvider)
+                          .saveToGallery(generatedQrImage);
+                      if (success && context.mounted) {
+                        showSnackBar(
+                          context: context,
+                          message: 'QR Code saved to gallery',
                         );
-                  }
-                },
-                icon: const Icon(Icons.share_rounded, size: 20),
-                label: const Text('Share'),
-                style: FilledButton.styleFrom(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: isCompact ? 16 : 24,
-                      vertical: isCompact ? 0 : 16),
-                  visualDensity: isCompact
-                      ? VisualDensity.compact
-                      : VisualDensity.standard,
+                      }
+                    }
+                  },
+                  icon: const Icon(Icons.download_rounded, size: 20),
+                  label: const Text('Save'),
+                  style: FilledButton.styleFrom(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: isCompact ? 16 : 24,
+                        vertical: isCompact ? 0 : 16),
+                    visualDensity: isCompact
+                        ? VisualDensity.compact
+                        : VisualDensity.standard,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        )
-      ],
+                const SizedBox(width: 16),
+                FilledButton.tonalIcon(
+                  onPressed: () {
+                    if (generatedQrImage != null) {
+                      ref
+                          .read(qrServiceProvider)
+                          .shareImage(
+                            generatedQrImage,
+                            caption: 'Generated with Easy QR Toolkit\nhttps://play.google.com/store/apps/details?id=com.billionants.easy_qr_toolkit',
+                          );
+                    }
+                  },
+                  icon: const Icon(Icons.share_rounded, size: 20),
+                  label: const Text('Share'),
+                  style: FilledButton.styleFrom(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: isCompact ? 16 : 24,
+                        vertical: isCompact ? 0 : 16),
+                    visualDensity: isCompact
+                        ? VisualDensity.compact
+                        : VisualDensity.standard,
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 }
