@@ -93,7 +93,6 @@ class _QrStylePicker extends ConsumerWidget {
   void _updateShape(WidgetRef ref, QrShape shape) {
     final generator = ref.read(generatorProvider.notifier);
     generator.updateState(shape: shape);
-    generator.generateImage();
   }
 }
 
@@ -157,7 +156,7 @@ class _QrColorPicker extends ConsumerWidget {
                       boxShadow: [
                         if (isSelected)
                           BoxShadow(
-                            color: color.withOpacity(0.3),
+                            color: color.withValues(alpha:0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -176,7 +175,6 @@ class _QrColorPicker extends ConsumerWidget {
   void _updateColor(WidgetRef ref, Color color) {
     final generator = ref.read(generatorProvider.notifier);
     generator.updateState(qrColor: color);
-    generator.generateImage();
   }
 }
 
@@ -218,10 +216,10 @@ class _QrLogoPicker extends ConsumerWidget {
                 ),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: context.surfaceVariant.withOpacity(0.5),
+                    color: context.surfaceVariant.withValues(alpha:0.5),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: context.outlineVariant.withOpacity(0.5),
+                      color: context.outlineVariant.withValues(alpha:0.5),
                     ),
                   ),
                   child: selectedLogo != null
@@ -304,14 +302,12 @@ class _QrLogoPicker extends ConsumerWidget {
     if (image != null) {
       final generator = ref.read(generatorProvider.notifier);
       generator.updateState(logo: File(image.path));
-      generator.generateImage();
     }
   }
 
   void _clearLogo(WidgetRef ref) {
     final generator = ref.read(generatorProvider.notifier);
     generator.updateState(clearLogo: true);
-    generator.generateImage();
   }
 
   ButtonSegment<double> _sizeSegment(double value, String label) {

@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:easy_qr_toolkit/features/history/scan_data_model.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -8,7 +9,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'database_service.g.dart';
 
 @Riverpod(keepAlive: true)
-DatabaseService databaseService(DatabaseServiceRef ref) {
+DatabaseService databaseService(Ref ref) {
   return DatabaseService.instance;
 }
 

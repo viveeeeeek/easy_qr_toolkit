@@ -50,7 +50,6 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
   Widget build(BuildContext context) {
     final generatorData = ref.watch(generatorProvider);
     final generator = ref.read(generatorProvider.notifier);
-    final qrService = ref.read(qrServiceProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -75,7 +74,7 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
               color: Theme.of(context)
                   .colorScheme
                   .onSurfaceVariant
-                  .withOpacity(0.5),
+                  .withValues(alpha:0.5),
             ),
             filled: true,
             fillColor: Theme.of(context)

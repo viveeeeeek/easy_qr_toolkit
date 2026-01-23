@@ -84,7 +84,7 @@ class _QRScanHistoryViewState extends ConsumerState<QRScanHistoryView> {
                         )
                       : null,
                   filled: true,
-                  fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                  fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide.none,
@@ -177,7 +177,7 @@ class _QRScanHistoryViewState extends ConsumerState<QRScanHistoryView> {
               Icon(
                 query.isNotEmpty ? Icons.search_off_rounded : Icons.history_rounded,
                 size: 64,
-                color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
               ),
               const SizedBox(height: 16),
               Text(

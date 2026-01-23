@@ -84,7 +84,6 @@ class _PalettePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
-    final center = Offset(size.width / 2, size.height / 2);
 
     final paint = Paint()..style = PaintingStyle.fill;
 
