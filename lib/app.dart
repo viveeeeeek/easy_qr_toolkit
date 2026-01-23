@@ -40,9 +40,9 @@ class App extends ConsumerWidget {
             systemNavigationBarContrastEnforced: false,
             systemStatusBarContrastEnforced: false,
             statusBarIconBrightness:
-                isDarkMode ? Brightness.light : Brightness.dark,
+            isDarkMode ? Brightness.light : Brightness.dark,
             systemNavigationBarIconBrightness:
-                isDarkMode ? Brightness.light : Brightness.dark,
+            isDarkMode ? Brightness.light : Brightness.dark,
           ),
           child: MaterialApp(
             title: AppConstants.appName,
@@ -55,6 +55,7 @@ class App extends ConsumerWidget {
                 colorScheme: darkColorScheme,
                 textTheme: buildDarkTextTheme()),
             routes: appRoutes,
+            navigatorObservers: [AppRoutes.routeObserver],
             initialRoute: AppRoutes.home,
             debugShowCheckedModeBanner: false,
           ),

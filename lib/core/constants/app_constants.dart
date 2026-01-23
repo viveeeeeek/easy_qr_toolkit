@@ -1,7 +1,12 @@
+import 'package:flutter/material.dart';
+
 class AppRoutes {
   static const String home = '/home';
   static const String scan = '/scan';
   static const String history = '/scan_history';
+  
+  /// Global route observer for tracking navigation events
+  static final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 }
 
 class AppConstants {
