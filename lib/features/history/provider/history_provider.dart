@@ -48,6 +48,10 @@ class History extends _$History {
     }
   }
 
+  Future<Uint8List?> getScanImage(int id) {
+    return ref.read(databaseServiceProvider).getScanImage(id);
+  }
+
   void setSearchQuery(String query) {
     if (state.hasValue) {
       state = AsyncValue.data(state.value!.copyWith(searchQuery: query));

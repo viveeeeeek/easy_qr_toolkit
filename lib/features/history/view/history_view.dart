@@ -218,8 +218,18 @@ class _QRScanHistoryViewState extends ConsumerState<QRScanHistoryView> {
       builder: (context) {
         return HistoryDetailsSheetContent(
           item: item,
-          onViewQrCode: (image, content) =>
-              _showQRImageDialog(context, image, content),
+          onViewQrCode: (image, content) async {
+            if (image != null) {
+              _showQRImageDialog(context, image, content);
+            } else if (item.id != null) {
+              // Load image on demand
+              final fullImage =
+                  await ref.read(historyProvider.notifier).getScanImage(item.id!);
+              if (fullImage != null && context.mounted) {
+                _showQRImageDialog(context, fullImage, content);
+              }
+            }
+          },
         );
       },
     );

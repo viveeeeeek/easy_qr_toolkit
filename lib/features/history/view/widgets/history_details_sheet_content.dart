@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 
 class HistoryDetailsSheetContent extends StatelessWidget {
   final ScanDataModel item;
-  final Function(Uint8List, String) onViewQrCode;
+  final Function(Uint8List?, String) onViewQrCode;
 
   const HistoryDetailsSheetContent({
     super.key,

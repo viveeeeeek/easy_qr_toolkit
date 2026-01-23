@@ -2,14 +2,14 @@ import 'package:flutter/foundation.dart';
 
 class ScanDataModel {
   final String content;
-  final Uint8List image;
+  final Uint8List? image;
   final int date;
   final String type;
   final int? id;
 
   const ScanDataModel({
     required this.content,
-    required this.image,
+    this.image,
     required this.date,
     this.type = 'text',
     this.id,
