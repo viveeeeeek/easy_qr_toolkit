@@ -3,6 +3,7 @@ import 'package:easy_qr_toolkit/core/extensions/sizedbox.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/qr_scan_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:home_widget/home_widget.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../settings/view/theme_settings_bottom_sheet.dart';
@@ -29,6 +30,7 @@ class _HomeViewState extends ConsumerState<HomeView> with RouteAware {
   void initState() {
     super.initState();
     _scrollController.addListener(_scrollListener);
+    _checkForWidgetLaunch();
   }
 
   @override
@@ -62,6 +64,21 @@ class _HomeViewState extends ConsumerState<HomeView> with RouteAware {
       setState(() => _isFabExpanded = false);
     } else if (_scrollController.position.pixels <= 50 && !_isFabExpanded) {
       setState(() => _isFabExpanded = true);
+    }
+  }
+
+  void _checkForWidgetLaunch() {
+    HomeWidget.widgetClicked.listen(_handleLaunch);
+  }
+
+  void _handleLaunch(Uri? uri) {
+    if (uri != null && uri.toString() == 'esqr://scan') {
+      // Small delay to ensure route is ready and frame is rendered
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          Navigator.of(context).pushNamed(AppRoutes.scan);
+        }
+      });
     }
   }
 

@@ -5,18 +5,21 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:home_widget/home_widget.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   final sharedPrefs = await SharedPreferences.getInstance();
+  final Uri? widgetUri = await HomeWidget.initiallyLaunchedFromHomeWidget();
 
   runApp(
     ProviderScope(
-      overrides: [
+      overrides: <Override>[
         sharedPreferencesProvider.overrideWithValue(sharedPrefs),
       ],
-      child: const App(),
+      child: App(initialWidgetUri: widgetUri),
     ),
   );
 }

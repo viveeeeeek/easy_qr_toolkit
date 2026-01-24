@@ -3,13 +3,17 @@ import 'package:easy_qr_toolkit/core/constants/app_constants.dart';
 import 'package:easy_qr_toolkit/core/routes/app_route.dart';
 import 'package:easy_qr_toolkit/core/theme/app_theme.dart';
 import 'package:easy_qr_toolkit/core/theme/theme_provider.dart';
+import 'package:easy_qr_toolkit/features/home/view/home_view.dart';
+import 'package:easy_qr_toolkit/features/scanner/view/qr_scan_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class App extends ConsumerWidget {
-  const App({super.key});
+  final Uri? initialWidgetUri;
+
+  const App({super.key, this.initialWidgetUri});
 
   // This widget is the root of your application.
   @override
@@ -56,7 +60,22 @@ class App extends ConsumerWidget {
                 textTheme: buildDarkTextTheme()),
             routes: appRoutes,
             navigatorObservers: [AppRoutes.routeObserver],
-            initialRoute: AppRoutes.home,
+            // Use onGenerateInitialRoutes to handle cold start navigation
+            // ensuring a valid stack [Home] or [Home, Scan] immediately.
+            onGenerateInitialRoutes: (String initialRouteName) {
+              final List<Route<dynamic>> routes = [
+                MaterialPageRoute(builder: (context) => const HomeView()),
+              ];
+
+              if (initialWidgetUri != null && 
+                  initialWidgetUri.toString() == 'esqr://scan') {
+                routes.add(
+                  MaterialPageRoute(builder: (context) => const QRScanView()),
+                );
+              }
+              
+              return routes;
+            },
             debugShowCheckedModeBanner: false,
           ),
         );
