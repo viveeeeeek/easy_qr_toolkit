@@ -40,6 +40,24 @@ ColorScheme buildDarkColorScheme({
   );
 }
 
+/// Light Theme
+ThemeData buildLightTheme(ColorScheme colorScheme) {
+  return ThemeData(
+    colorScheme: colorScheme,
+    useMaterial3: true,
+    textTheme: buildLightTextTheme(),
+  );
+}
+
+/// Dark Theme
+ThemeData buildDarkTheme(ColorScheme colorScheme) {
+  return ThemeData(
+    colorScheme: colorScheme,
+    useMaterial3: true,
+    textTheme: buildDarkTextTheme(),
+  );
+}
+
 /// Text theme for dark theme
 TextTheme buildDarkTextTheme() {
   return GoogleFonts.outfitTextTheme().apply(

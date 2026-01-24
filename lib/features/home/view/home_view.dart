@@ -72,7 +72,7 @@ class _HomeViewState extends ConsumerState<HomeView> with RouteAware {
   }
 
   void _handleLaunch(Uri? uri) {
-    if (uri != null && uri.toString() == 'esqr://scan') {
+    if (uri != null && uri.toString() == AppConstants.scanWidgetDeepLink) {
       // Small delay to ensure route is ready and frame is rendered
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) {

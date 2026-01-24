@@ -8,7 +8,6 @@ import 'package:easy_qr_toolkit/features/scanner/view/qr_scan_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class App extends ConsumerWidget {
   final Uri? initialWidgetUri;
@@ -44,20 +43,15 @@ class App extends ConsumerWidget {
             systemNavigationBarContrastEnforced: false,
             systemStatusBarContrastEnforced: false,
             statusBarIconBrightness:
-            isDarkMode ? Brightness.light : Brightness.dark,
+                isDarkMode ? Brightness.light : Brightness.dark,
             systemNavigationBarIconBrightness:
-            isDarkMode ? Brightness.light : Brightness.dark,
+                isDarkMode ? Brightness.light : Brightness.dark,
           ),
           child: MaterialApp(
             title: AppConstants.appName,
-            theme: ThemeData(
-                colorScheme: lightColorScheme,
-                useMaterial3: true,
-                textTheme: buildLightTextTheme()),
+            theme: buildLightTheme(lightColorScheme),
             themeMode: themeState.themeMode,
-            darkTheme: ThemeData(
-                colorScheme: darkColorScheme,
-                textTheme: buildDarkTextTheme()),
+            darkTheme: buildDarkTheme(darkColorScheme),
             routes: appRoutes,
             navigatorObservers: [AppRoutes.routeObserver],
             // Use onGenerateInitialRoutes to handle cold start navigation
@@ -67,13 +61,14 @@ class App extends ConsumerWidget {
                 MaterialPageRoute(builder: (context) => const HomeView()),
               ];
 
-              if (initialWidgetUri != null && 
-                  initialWidgetUri.toString() == 'esqr://scan') {
+              if (initialWidgetUri != null &&
+                  initialWidgetUri.toString() ==
+                      AppConstants.scanWidgetDeepLink) {
                 routes.add(
                   MaterialPageRoute(builder: (context) => const QRScanView()),
                 );
               }
-              
+
               return routes;
             },
             debugShowCheckedModeBanner: false,
