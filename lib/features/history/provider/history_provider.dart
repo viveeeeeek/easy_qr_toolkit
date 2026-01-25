@@ -26,12 +26,15 @@ class History extends _$History {
   }
 
   Future<void> deleteScan(int id) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      await ref.read(databaseServiceProvider).deleteData(id);
-      final scans = await ref.read(databaseServiceProvider).getData();
-      return state.value!.copyWith(scans: scans);
-    });
+    // Optimistic update - remove from local state immediately
+    if (state.hasValue) {
+      final currentScans = state.value!.scans;
+      final updatedScans = currentScans.where((scan) => scan.id != id).toList();
+      state = AsyncValue.data(state.value!.copyWith(scans: updatedScans));
+    }
+    
+    // Then delete from database in background
+    await ref.read(databaseServiceProvider).deleteData(id);
   }
 
   Future<void> clearAllScans() async {
