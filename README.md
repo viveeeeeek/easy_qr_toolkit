@@ -18,7 +18,7 @@
 </div>
 
 <!-- ---------- Screenshots ---------- -->
-![Easy QR Toolkit Banner](easy_qr_toolkit_images/easy_qr_toolkit_banenr.png)
+![Easy QR Toolkit Banner](easy_qr_toolkit_images/easy_qr_toolkit_banner.png)
 
 <!-- ---------- Features ---------- -->
 ## Features
