@@ -70,7 +70,7 @@ class QRService {
     }
 
     if (content.startsWith('WIFI:')) return 'wifi';
-    if (content.contains('BEGIN:VCARD')) return 'contactInfo';
+    if (content.contains('BEGIN:VCARD')) return 'contact';
 
     return originalType;
   }

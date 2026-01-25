@@ -1,7 +1,6 @@
-
-
 import 'package:easy_qr_toolkit/core/enums/qr_type.dart';
 import 'package:easy_qr_toolkit/core/extensions/int.dart';
+import 'package:easy_qr_toolkit/core/utils/wifi_parser.dart';
 import 'package:easy_qr_toolkit/features/history/scan_data_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
@@ -58,6 +57,7 @@ class _HistoryListItemState extends ConsumerState<HistoryListItem> {
     final content = widget.item.content;
     String displayName = content;
 
+    // Handle Contact vCard
     if (type == 'contact' || content.startsWith('BEGIN:VCARD')) {
       // Watch ONLY the specific entry for this content
       final cachedName = ref.watch(
@@ -66,6 +66,11 @@ class _HistoryListItemState extends ConsumerState<HistoryListItem> {
       
       // Use cached name if available, otherwise show placeholder or raw content
       displayName = cachedName ?? 'Contact Card';
+    }
+    // Handle WiFi
+    else if (type == 'wifi' || content.startsWith('WIFI:')) {
+      final wifi = WifiParser.parse(content);
+      displayName = wifi?.ssid ?? 'WiFi Network';
     }
     
     return ListTile(
