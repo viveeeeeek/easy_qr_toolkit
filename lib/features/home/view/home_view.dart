@@ -6,9 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_widget/home_widget.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../core/enums/qr_type.dart';
 import '../../settings/view/theme_settings_bottom_sheet.dart';
 import '../generator_provider.dart';
-import 'widgets/generate_qr_textfield.dart';
+import 'widgets/smart_input_container.dart';
+import 'widgets/qr_type_selector.dart';
 import 'widgets/generated_qr_card.dart';
 import 'widgets/qr_customization_sheet.dart';
 
@@ -25,6 +27,7 @@ class _HomeViewState extends ConsumerState<HomeView> with RouteAware {
   bool _isFabExpanded = true;
   bool _isCustomizing = false;
   bool _isTyping = false;
+  QrType _selectedType = QrType.text;
 
   @override
   void initState() {
@@ -55,8 +58,8 @@ class _HomeViewState extends ConsumerState<HomeView> with RouteAware {
   // Called when returning to this route from another
   @override
   void didPopNext() {
-    // Unfocus when returning from another screen
-    _inputFocusNode.unfocus();
+    // Unfocus ANY active field when returning from another screen
+    FocusManager.instance.primaryFocus?.unfocus();
   }
 
   void _scrollListener() {
@@ -131,20 +134,33 @@ class _HomeViewState extends ConsumerState<HomeView> with RouteAware {
               padding: const EdgeInsets.all(20.0),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  AnimatedSize(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOutCubicEmphasized,
-                    child: _isCustomizing 
-                      ? const SizedBox.shrink() 
-                      : ModernQRInputCard(
-                          focusNode: _inputFocusNode,
-                          onTypingStateChanged: (isTyping) {
-                            if (_isTyping != isTyping) {
-                              setState(() => _isTyping = isTyping);
-                            }
-                          },
-                        ),
-                  ),
+                  // Type Selector - FIXED, outside any animation wrappers
+                  if (!_isCustomizing)
+                    QrTypeSelector(
+                      selectedType: _selectedType,
+                      onTypeChanged: (type) {
+                        if (_selectedType != type) {
+                          setState(() => _selectedType = type);
+                          ref.read(generatorProvider.notifier).reset();
+                          if (_isTyping) {
+                            setState(() => _isTyping = false);
+                          }
+                        }
+                      },
+                    ),
+                  if (!_isCustomizing)
+                    const SizedBox(height: 16),
+                  // Input Form - simple fade only
+                  if (!_isCustomizing)
+                    SmartInputContainer(
+                      selectedType: _selectedType,
+                      focusNode: _inputFocusNode,
+                      onTypingStateChanged: (isTyping) {
+                        if (_isTyping != isTyping) {
+                          setState(() => _isTyping = isTyping);
+                        }
+                      },
+                    ),
                   // Use AnimatedSwitcher instead of AnimatedCrossFade for better performance
                   // AnimatedSwitcher only builds the CURRENT child, not both.
                   AnimatedSwitcher(
