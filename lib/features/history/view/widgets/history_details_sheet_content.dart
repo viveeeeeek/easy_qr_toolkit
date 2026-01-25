@@ -1,6 +1,6 @@
 
 import 'dart:typed_data';
-import 'package:easy_qr_toolkit/core/enums/scan_type.dart';
+import 'package:easy_qr_toolkit/core/enums/qr_type.dart';
 import 'package:easy_qr_toolkit/core/extensions/int.dart';
 import 'package:easy_qr_toolkit/features/history/scan_data_model.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/result_data_section.dart';
@@ -61,7 +61,7 @@ class HistoryDetailsSheetContent extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            ScanType.fromString(item.type).label,
+                            QrType.fromString(item.type).scanLabel,
                             style: TextStyle(
                               color: theme.colorScheme.primary,
                               fontWeight: FontWeight.bold,

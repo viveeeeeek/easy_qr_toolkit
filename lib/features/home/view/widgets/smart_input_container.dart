@@ -43,6 +43,13 @@ class SmartInputContainer extends ConsumerWidget {
           focusNode: focusNode,
           onTypingStateChanged: onTypingStateChanged,
         );
+      // For non-generatable types (url, geo, other), fall back to text input
+      default:
+        return ModernQRInputCard(
+          key: const ValueKey('text_input'),
+          focusNode: focusNode,
+          onTypingStateChanged: onTypingStateChanged,
+        );
     }
   }
 }

@@ -1,4 +1,4 @@
-import 'package:easy_qr_toolkit/core/enums/scan_type.dart';
+import 'package:easy_qr_toolkit/core/enums/qr_type.dart';
 import 'package:easy_qr_toolkit/features/scanner/provider/scanner_provider.dart';
 
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/result_data_section.dart';
@@ -52,7 +52,7 @@ class QRResultView extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        ScanType.fromString(state.scannedType).label,
+                        QrType.fromString(state.scannedType).scanLabel,
                         style: TextStyle(
                           color: colorScheme.primary,
                           fontWeight: FontWeight.bold,

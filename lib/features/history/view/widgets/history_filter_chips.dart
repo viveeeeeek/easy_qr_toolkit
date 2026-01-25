@@ -1,4 +1,4 @@
-import 'package:easy_qr_toolkit/core/enums/scan_type.dart';
+import 'package:easy_qr_toolkit/core/enums/qr_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,7 +11,7 @@ class HistoryFilterChips extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final filters = ['All', ...ScanType.values.where((e) => e != ScanType.other).map((e) => e.displayName)];
+    final filters = ['All', ...QrType.values.where((e) => e != QrType.other).map((e) => e.displayName)];
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,

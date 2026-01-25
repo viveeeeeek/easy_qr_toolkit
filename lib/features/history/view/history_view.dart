@@ -9,7 +9,7 @@ import 'package:easy_qr_toolkit/features/history/view/widgets/qr_image_dialog.da
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/enums/scan_type.dart';
+import '../../../core/enums/qr_type.dart';
 import '../provider/history_provider.dart';
 
 class QRScanHistoryView extends ConsumerStatefulWidget {
@@ -160,10 +160,10 @@ class _QRScanHistoryViewState extends ConsumerState<QRScanHistoryView> {
 
     final filteredData = scans.reversed.where((item) {
       final matchesType = filter == 'All' ||
-          ScanType.fromString(item.type).displayName == filter;
+          QrType.fromString(item.type).displayName == filter;
       final matchesSearch = query.isEmpty ||
           item.content.toLowerCase().contains(query) ||
-          ScanType.fromString(item.type).displayName.toLowerCase().contains(query);
+          QrType.fromString(item.type).displayName.toLowerCase().contains(query);
       return matchesType && matchesSearch;
     }).toList();
 

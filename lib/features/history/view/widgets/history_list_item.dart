@@ -1,5 +1,6 @@
 
-import 'package:easy_qr_toolkit/core/enums/scan_type.dart';
+
+import 'package:easy_qr_toolkit/core/enums/qr_type.dart';
 import 'package:easy_qr_toolkit/core/extensions/int.dart';
 import 'package:easy_qr_toolkit/features/history/scan_data_model.dart';
 import 'package:flutter/material.dart';

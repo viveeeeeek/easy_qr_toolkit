@@ -13,11 +13,14 @@ class QrTypeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Only show types that have generation forms
+    final generatableTypes = QrType.values.where((type) => type.isGeneratable).toList();
+    
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
       child: Row(
-        children: QrType.values.map((type) {
+        children: generatableTypes.map((type) {
           final isSelected = type == selectedType;
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
@@ -26,9 +29,9 @@ class QrTypeSelector extends StatelessWidget {
               avatar: Icon(
                 _getIconForType(type),
                 size: 18,
-                color: isSelected 
-                  ? Theme.of(context).colorScheme.onSecondaryContainer
-                  : Theme.of(context).colorScheme.onSurfaceVariant,
+                color: isSelected
+                    ? Theme.of(context).colorScheme.onSecondaryContainer
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               label: Text(type.label),
               selected: isSelected,
@@ -38,12 +41,15 @@ class QrTypeSelector extends StatelessWidget {
                 }
               },
               side: BorderSide.none,
-              // Material 3 style is default for ChoiceChip usually, 
+              // Material 3 style is default for ChoiceChip usually,
               // but we can enforce some nice colors if needed.
-              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              backgroundColor: Theme.of(context)
+                  .colorScheme
+                  .surfaceContainerHighest
+                  .withValues(alpha: 0.3),
               selectedColor: Theme.of(context).colorScheme.secondaryContainer,
               labelStyle: TextStyle(
-                color: isSelected 
+                color: isSelected
                     ? Theme.of(context).colorScheme.onSecondaryContainer
                     : Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -64,6 +70,9 @@ class QrTypeSelector extends StatelessWidget {
         return Icons.wifi_rounded;
       case QrType.contact:
         return Icons.person_rounded;
+      // Default for non-generatable types (shouldn't be reached due to filter)
+      default:
+        return Icons.qr_code_rounded;
     }
   }
 }

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
-import 'package:easy_qr_toolkit/core/enums/scan_type.dart';
+import 'package:easy_qr_toolkit/core/enums/qr_type.dart';
 import 'package:easy_qr_toolkit/core/utils/wifi_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -39,10 +39,10 @@ class SmartActionButtons extends StatelessWidget {
 
   List<Widget> _getSmartActions(BuildContext context) {
     final List<Widget> buttons = [];
-    final scanType = ScanType.fromString(type);
+    final scanType = QrType.fromString(type);
 
     // URL Action
-    if (scanType == ScanType.url || content.startsWith('http')) {
+    if (scanType == QrType.url || content.startsWith('http')) {
       buttons.add(
         FilledButton.icon(
           onPressed: () => _launchUrl(content),
@@ -53,7 +53,7 @@ class SmartActionButtons extends StatelessWidget {
     }
 
     // WiFi Action
-    if (scanType == ScanType.wifi || content.startsWith('WIFI:')) {
+    if (scanType == QrType.wifi || content.startsWith('WIFI:')) {
       buttons.add(
         FilledButton.icon(
           onPressed: () => _handleWifiConnect(context),
@@ -64,7 +64,7 @@ class SmartActionButtons extends StatelessWidget {
     }
 
     // Geo/Maps Action
-    if (scanType == ScanType.geo || content.startsWith('geo:')) {
+    if (scanType == QrType.geo || content.startsWith('geo:')) {
       buttons.add(
         FilledButton.icon(
           onPressed: () => _launchUrl(content),
@@ -75,7 +75,7 @@ class SmartActionButtons extends StatelessWidget {
     }
 
     // Contact/vCard Action
-    if (scanType == ScanType.contactInfo || content.contains('BEGIN:VCARD')) {
+    if (scanType == QrType.contact || content.contains('BEGIN:VCARD')) {
       buttons.add(
         FilledButton.icon(
           onPressed: () => _saveContact(context),
