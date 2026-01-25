@@ -134,33 +134,40 @@ class _HomeViewState extends ConsumerState<HomeView> with RouteAware {
               padding: const EdgeInsets.all(20.0),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  // Type Selector - FIXED, outside any animation wrappers
-                  if (!_isCustomizing)
-                    QrTypeSelector(
-                      selectedType: _selectedType,
-                      onTypeChanged: (type) {
-                        if (_selectedType != type) {
-                          setState(() => _selectedType = type);
-                          ref.read(generatorProvider.notifier).reset();
-                          if (_isTyping) {
-                            setState(() => _isTyping = false);
-                          }
-                        }
-                      },
+                  // Type Selector and Input Form - use Visibility to preserve state
+                  Visibility(
+                    visible: !_isCustomizing,
+                    maintainState: true,
+                    maintainAnimation: true,
+                    maintainSize: false,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        QrTypeSelector(
+                          selectedType: _selectedType,
+                          onTypeChanged: (type) {
+                            if (_selectedType != type) {
+                              setState(() => _selectedType = type);
+                              ref.read(generatorProvider.notifier).reset();
+                              if (_isTyping) {
+                                setState(() => _isTyping = false);
+                              }
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        SmartInputContainer(
+                          selectedType: _selectedType,
+                          focusNode: _inputFocusNode,
+                          onTypingStateChanged: (isTyping) {
+                            if (_isTyping != isTyping) {
+                              setState(() => _isTyping = isTyping);
+                            }
+                          },
+                        ),
+                      ],
                     ),
-                  if (!_isCustomizing)
-                    const SizedBox(height: 16),
-                  // Input Form - simple fade only
-                  if (!_isCustomizing)
-                    SmartInputContainer(
-                      selectedType: _selectedType,
-                      focusNode: _inputFocusNode,
-                      onTypingStateChanged: (isTyping) {
-                        if (_isTyping != isTyping) {
-                          setState(() => _isTyping = isTyping);
-                        }
-                      },
-                    ),
+                  ),
                   // Use AnimatedSwitcher instead of AnimatedCrossFade for better performance
                   // AnimatedSwitcher only builds the CURRENT child, not both.
                   AnimatedSwitcher(

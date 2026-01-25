@@ -150,6 +150,9 @@ class _GeneratedQRCardState extends ConsumerState<GeneratedQRCard> {
   }
 
   Future<void> _handleSave() async {
+    // Dismiss keyboard
+    FocusManager.instance.primaryFocus?.unfocus();
+    
     setState(() => _isSaving = true);
     try {
       final exportImage = await ref

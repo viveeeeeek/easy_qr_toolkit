@@ -78,6 +78,8 @@ class QRResultView extends ConsumerWidget {
                     ResultActionButtons(
                       content: state.scannedData,
                       onScanAgain: () {
+                        // Invalidate scanner state before going back to scan view
+                        ref.invalidate(scannerProvider);
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
