@@ -5,28 +5,28 @@
   <p>Simple Material YOU Inspired QR Code Generator & Scanner App</p>
 </div>
 
-<!-- ---------- Labels ---------- -->
 <div align="center"> 
   <img alt="Flutter" src="https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white&style=for-the-badge"/>
   <img alt="Dart" src="https://img.shields.io/badge/Dart-00BFFF?logo=dart&logoColor=white&style=for-the-badge"/>
-  <img alt="API 29+" src="https://img.shields.io/badge/API%2029+-50f270?logo=android&logoColor=black&style=for-the-badge"/>
-  <img alt="MVVM" src="https://img.shields.io/badge/MVVM-FF5922?style=for-the-badge"/>
-  <img alt="Provider" src="https://img.shields.io/badge/Provider-0052CC?logo=flutter&logoColor=white&style=for-the-badge"/>
+  <img alt="Riverpod" src="https://img.shields.io/badge/Riverpod-2.5-42a5f5?style=for-the-badge&logo=flutter&logoColor=white"/>
+  <img alt="Feature First" src="https://img.shields.io/badge/Architecture-Feature%20First-green?style=for-the-badge"/>
+  <img alt="Freezed" src="https://img.shields.io/badge/Freezed-2.5-blue?style=for-the-badge"/>
   <img alt="Material You" src="https://custom-icon-badges.demolab.com/badge/material%20you-lightblue?style=for-the-badge&logocolor=333&logo=material-you"/>
   <img alt="sqflite" src="https://img.shields.io/badge/sqflite-00A300?logo=sqlite&logoColor=white&style=for-the-badge"/>
-  <img alt="Google Fonts" src="https://img.shields.io/badge/Google%20Fonts-4285F4?style=for-the-badge&logo=googlefonts&logoColor=white"/>
+  <img alt="Home Widget" src="https://img.shields.io/badge/Home%20Widget-0.9-orange?style=for-the-badge"/>
   <img alt="Dynamic Colors" src="https://img.shields.io/badge/Dynamic%20Colors-FF5722?style=for-the-badge"/>
-
 </div>
 
 <!-- ---------- Screenshots ---------- -->
-![p2pbookshare-github-header](https://github.com/user-attachments/assets/22f1b7be-75e0-47ee-8c65-ccc3991db293)
+![Easy QR Toolkit Banner](easy_qr_toolkit_images/easy_qr_toolkit_banenr.png)
 
 <!-- ---------- Features ---------- -->
 ## Features
 
-- **Effortless QR Code Generation**: Instantly generate QR codes for text with just a few taps.
-- **Quick QR Code Scanning**: Scan QR codes using your camera or from an image in your gallery to extract information in real-time.
+- **Effortless QR Code Generation**: Instantly generate QR codes for **Text, WiFi Networks, and Contacts** with just a few taps.
+- **Quick QR Code Scanning**: Scan QR codes using your camera or from an image in your gallery. Supports URL, WiFi, Contact, Location, and more.
+- **Home Screen Widget**: Quick access to scanning directly from your home screen without opening the app.
+- **Advanced Customization**: Customize your generated QR codes with personalized colors and styles.
 - **Material You Design**: Built with the latest Material You design principles, offering a clean, modern look that adapts to your system's theme.
 - **Dynamic Colors**: Enjoy personalized color schemes that match your device’s system-wide color preferences for a visually consistent experience.
 - **Easy-to-Use Interface**: A straightforward, intuitive layout ensures generating and scanning QR codes is hassle-free.

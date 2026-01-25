@@ -2,48 +2,60 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-ColorScheme buildLightColorScheme(
-    BuildContext context, ColorScheme? lightDynamic) {
-  // final themeProvider = Provider.of<AppThemeService>(context);
-  // final appThemeSharedPrefsProvider = Provider.of<AppThemePrefs>(context);
-
-  // bool isDynamic = appThemeSharedPrefsProvider.isDynamiThemeEnabled;
-
-  try {
-    if (lightDynamic != null) {
-      return lightDynamic.harmonized();
-    } else {
-      return ColorScheme.fromSeed(
-        seedColor: Colors.blue,
-        brightness: Brightness.light,
-      );
-    }
-  } catch (e) {
-    // print('Error getting light color scheme: $e');
-    return const ColorScheme.light(); // Return a default color scheme on error
+ColorScheme buildLightColorScheme({
+  required ColorScheme? lightDynamic,
+  required Color seedColor,
+  required bool isDynamic,
+}) {
+  if (isDynamic && lightDynamic != null) {
+    return ColorScheme.fromSeed(
+      seedColor: lightDynamic.primary,
+      brightness: Brightness.light,
+    );
   }
+  return ColorScheme.fromSeed(
+    seedColor: seedColor,
+    brightness: Brightness.light,
+  );
 }
 
-ColorScheme buildDarkColorScheme(
-    BuildContext context, ColorScheme? darkDynamic) {
-  // final themeProvider = Provider.of<AppThemeService>(context);
-  // final appThemeSharedPrefsProvider = Provider.of<AppThemePrefs>(context);
-
-  // bool isDynamic = appThemeSharedPrefsProvider.isDynamiThemeEnabled;
-
-  try {
-    if (darkDynamic != null) {
-      return darkDynamic.harmonized();
-    } else {
-      return ColorScheme.fromSeed(
-        seedColor: Colors.green,
-        brightness: Brightness.dark,
-      );
-    }
-  } catch (e) {
-    // print('Error getting light color scheme: $e');
-    return const ColorScheme.dark(); // Return a default color scheme on error
+ColorScheme buildDarkColorScheme({
+  required ColorScheme? darkDynamic,
+  required ColorScheme? lightDynamic,
+  required Color seedColor,
+  required bool isDynamic,
+}) {
+  if (isDynamic && darkDynamic != null) {
+    // Use lightDynamic's primary as the seed if available, as it's typically
+    // the source color (Tone 40), ensuring a more accurate palette generation
+    // than darkDynamic's primary (Tone 80).
+    return ColorScheme.fromSeed(
+      seedColor: lightDynamic?.primary ?? darkDynamic.primary,
+      brightness: Brightness.dark,
+    );
   }
+  return ColorScheme.fromSeed(
+    seedColor: seedColor,
+    brightness: Brightness.dark,
+  );
+}
+
+/// Light Theme
+ThemeData buildLightTheme(ColorScheme colorScheme) {
+  return ThemeData(
+    colorScheme: colorScheme,
+    useMaterial3: true,
+    textTheme: buildLightTextTheme(),
+  );
+}
+
+/// Dark Theme
+ThemeData buildDarkTheme(ColorScheme colorScheme) {
+  return ThemeData(
+    colorScheme: colorScheme,
+    useMaterial3: true,
+    textTheme: buildDarkTextTheme(),
+  );
 }
 
 /// Text theme for dark theme

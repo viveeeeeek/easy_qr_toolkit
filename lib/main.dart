@@ -1,20 +1,25 @@
 import 'package:easy_qr_toolkit/app.dart';
+import 'package:easy_qr_toolkit/core/providers/shared_preferences_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+import 'package:home_widget/home_widget.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  setSystemUIOverlayStyle();
-  runApp(const App());
-}
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
-// make navigation bar transparent
-void setSystemUIOverlayStyle() {
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      systemNavigationBarColor: Colors.transparent,
+  final sharedPrefs = await SharedPreferences.getInstance();
+  final Uri? widgetUri = await HomeWidget.initiallyLaunchedFromHomeWidget();
+
+  runApp(
+    ProviderScope(
+      overrides: <Override>[
+        sharedPreferencesProvider.overrideWithValue(sharedPrefs),
+      ],
+      child: App(initialWidgetUri: widgetUri),
     ),
   );
-  // make flutter draw behind navigation bar
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 }
