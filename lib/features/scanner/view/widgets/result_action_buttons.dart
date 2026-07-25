@@ -34,7 +34,11 @@ class ResultActionButtons extends StatelessWidget {
               context,
               icon: Icons.share,
               label: 'Share',
-              onTap: () => Share.share(content),
+              onTap: () => Share.share(
+                'Scanned with Easy QR Toolkit:\n'
+                '$content\n\n'
+                'Get the app: https://play.google.com/store/apps/details?id=com.billionants.easy_qr_toolkit',
+              ),
             ),
           ],
         ),
