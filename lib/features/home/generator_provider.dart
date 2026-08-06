@@ -1,6 +1,5 @@
 import 'dart:io';
 
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
@@ -8,68 +7,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../core/enums/qr_shape.dart';
 import '../../core/services/qr_service.dart';
+import 'generator_state.dart';
+
+export 'generator_state.dart';
 
 part 'generator_provider.g.dart';
-
-class GeneratorState {
-  final String data;
-  final QrShape shape;
-  final Color qrColor;
-  final File? logo;
-  final double logoScale; // 0.1 to 0.3
-  // Cache the logical QR object to avoid main-thread re-computation in UI
-  final QrImage? qrImageObject;
-
-  const GeneratorState({
-    this.data = '',
-    this.shape = QrShape.smooth,
-    this.qrColor = Colors.black,
-    this.logo,
-    this.logoScale = 0.2,
-    this.qrImageObject,
-  });
-
-  GeneratorState copyWith({
-    String? data,
-    QrShape? shape,
-    Color? qrColor,
-    File? logo,
-    bool clearLogo = false,
-    double? logoScale,
-    QrImage? qrImageObject,
-  }) {
-    return GeneratorState(
-      data: data ?? this.data,
-      shape: shape ?? this.shape,
-      qrColor: qrColor ?? this.qrColor,
-      logo: clearLogo ? null : (logo ?? this.logo),
-      logoScale: logoScale ?? this.logoScale,
-      qrImageObject: qrImageObject ?? this.qrImageObject,
-    );
-  }
-
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is GeneratorState &&
-        other.data == data &&
-        other.shape == shape &&
-        other.qrColor == qrColor &&
-        other.logo?.path == logo?.path &&
-        other.logoScale == logoScale &&
-        other.qrImageObject == qrImageObject;
-  }
-
-  @override
-  int get hashCode =>
-      data.hashCode ^
-      shape.hashCode ^
-      qrColor.hashCode ^
-      logo.hashCode ^
-      logoScale.hashCode ^
-      qrImageObject.hashCode;
-}
 
 // Independent function for Isolate
 QrImage _generateQrIsolate(String data) {
@@ -96,14 +38,13 @@ class Generator extends _$Generator {
     double? logoScale,
     QrImage? qrImageObject,
   }) {
-    state = state.copyWith(
-      data: data,
-      shape: shape,
-      qrColor: qrColor,
-      logo: logo,
-      clearLogo: clearLogo,
-      logoScale: logoScale,
-      qrImageObject: qrImageObject,
+    state = GeneratorState(
+      data: data ?? state.data,
+      shape: shape ?? state.shape,
+      qrColor: qrColor ?? state.qrColor,
+      logo: clearLogo ? null : (logo ?? state.logo),
+      logoScale: logoScale ?? state.logoScale,
+      qrImageObject: qrImageObject ?? state.qrImageObject,
     );
   }
 

@@ -12,6 +12,7 @@ class AppRoutes {
 
 class AppConstants {
   static const String appName = 'Easy QR Toolkit';
+  // This is our custom URI Intent to launch the Scan Flow in the app.
   static const String scanWidgetDeepLink = 'esqr://scan';
 }
 
