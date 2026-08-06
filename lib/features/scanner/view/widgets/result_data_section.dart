@@ -113,13 +113,10 @@ class ResultDataSection extends StatelessWidget {
       children: [
         _buildIconHeader(context, Icons.link),
         16.h,
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Text(
-            url,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center,
-          ),
+        _buildScrollableTextContent(
+          context,
+          url,
+          const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
         ),
       ],
     );
@@ -130,13 +127,10 @@ class ResultDataSection extends StatelessWidget {
       children: [
         _buildIconHeader(context, Icons.location_on),
         16.h,
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Text(
-            location,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center,
-          ),
+        _buildScrollableTextContent(
+          context,
+          location,
+          const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
         ),
       ],
     );
@@ -147,14 +141,69 @@ class ResultDataSection extends StatelessWidget {
       children: [
         _buildIconHeader(context, Icons.text_fields),
         16.h,
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 18),
-            textAlign: TextAlign.center,
+        _buildScrollableTextContent(
+          context,
+          text,
+          const TextStyle(fontSize: 18),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildScrollableTextContent(
+    BuildContext context,
+    String text,
+    TextStyle style,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final scrollController = ScrollController();
+    final isLong = text.length > 80 || text.contains('\n');
+
+    return Column(
+      children: [
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 180),
+          child: Scrollbar(
+            controller: scrollController,
+            thumbVisibility: isLong,
+            radius: const Radius.circular(8),
+            child: SingleChildScrollView(
+              controller: scrollController,
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  text,
+                  style: style,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
           ),
         ),
+        if (isLong) ...[
+          8.h,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.unfold_more,
+                size: 14,
+                color: colorScheme.primary.withValues(alpha: 0.7),
+              ),
+              4.w,
+              Text(
+                'Scroll for more',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: colorScheme.primary.withValues(alpha: 0.7),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }
