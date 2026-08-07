@@ -44,7 +44,7 @@ class ResultDataSection extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
-        _buildIconHeader(context, Icons.wifi),
+        _buildIconHeader(context, wifi.isHidden ? Icons.wifi_off_rounded : Icons.wifi),
         16.h,
         Text(
           wifi.ssid,
@@ -52,21 +52,51 @@ class ResultDataSection extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         8.h,
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: colorScheme.outlineVariant),
-          ),
-          child: Text(
-            'Security: ${wifi.type}',
-            style: TextStyle(
-              fontSize: 12,
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 8,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: colorScheme.outlineVariant),
+              ),
+              child: Text(
+                'Security: ${wifi.type}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
-          ),
+            if (wifi.isHidden)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: colorScheme.errorContainer,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.visibility_off_outlined, size: 14, color: colorScheme.onErrorContainer),
+                    4.w,
+                    Text(
+                      'Hidden Network',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colorScheme.onErrorContainer,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
         ),
         24.h,
         _buildInfoRow(context, Icons.lock_outline, wifi.password),
