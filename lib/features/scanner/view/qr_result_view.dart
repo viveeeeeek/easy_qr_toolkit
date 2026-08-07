@@ -24,76 +24,88 @@ class QRResultView extends ConsumerWidget {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40),
-          child: Column(
-            children: [
-              const Spacer(),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                ),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24),
+                    child: Column(
+                      children: [
+                        const Spacer(),
 
-              // The Main Result Card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withValues(alpha:0.5),
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(
-                    color: colorScheme.outlineVariant.withValues(alpha:0.5),
+                        // The Main Result Card
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                            borderRadius: BorderRadius.circular(28),
+                            border: Border.all(
+                              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // A badge showing the type
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.primary.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  QrType.fromString(state.scannedType).scanLabel,
+                                  style: TextStyle(
+                                    color: colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                              ),
+                              10.h,
+                              // The Data Section
+                              ResultDataSection(content: state.scannedData),
+
+                              // Primary Smart Actions (Large, interactive)
+                              SmartActionButtons(
+                                content: state.scannedData,
+                                type: state.scannedType,
+                              ),
+
+                              // Utility Actions (Copy/Share)
+                              const Divider(height: 32),
+                              ResultActionButtons(
+                                content: state.scannedData,
+                                onScanAgain: () {
+                                  // Invalidate scanner state before going back to scan view
+                                  ref.invalidate(scannerProvider);
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => const QRScanView()),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const Spacer(),
+                      ],
+                    ),
                   ),
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // A badge showing the type
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary.withValues(alpha:0.1),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        QrType.fromString(state.scannedType).scanLabel,
-                        style: TextStyle(
-                          color: colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                    ),
-                    10.h,
-                    // The Data Section
-                    ResultDataSection(content: state.scannedData),
-                    
-                    // Primary Smart Actions (Large, interactive)
-                    SmartActionButtons(
-                      content: state.scannedData,
-                      type: state.scannedType,
-                    ),
-                    
-
-
-                    // Utility Actions (Copy/Share)
-                    const Divider(height: 32),
-                    ResultActionButtons(
-                      content: state.scannedData,
-                      onScanAgain: () {
-                        // Invalidate scanner state before going back to scan view
-                        ref.invalidate(scannerProvider);
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const QRScanView()),
-                        );
-                      },
-                    ),
-                  ],
-                ),
               ),
-
-              const Spacer(),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

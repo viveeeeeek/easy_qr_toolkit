@@ -1,53 +1,25 @@
 import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class ScanDataModel {
-  final String content;
-  final Uint8List? image;
-  final int date;
-  final String type;
-  final int? id;
+part 'scan_data_model.freezed.dart';
 
-  const ScanDataModel({
-    required this.content,
-    this.image,
-    required this.date,
-    this.type = 'text',
-    this.id,
-  });
-
-  ScanDataModel copyWith({
-    String? content,
+@freezed
+class ScanDataModel with _$ScanDataModel {
+  const factory ScanDataModel({
+    required String content,
     Uint8List? image,
-    int? date,
-    String? type,
+    required int date,
+    @Default('text') String type,
     int? id,
-  }) {
+  }) = _ScanDataModel;
+
+  factory ScanDataModel.fromMap(Map<String, dynamic> map) {
     return ScanDataModel(
-      content: content ?? this.content,
-      image: image ?? this.image,
-      date: date ?? this.date,
-      type: type ?? this.type,
-      id: id ?? this.id,
+      id: map['id'] as int?,
+      content: map['content'] as String,
+      date: map['date'] as int,
+      image: map['image'] as Uint8List?,
+      type: (map['type'] as String?) ?? 'text',
     );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is ScanDataModel &&
-        other.content == content &&
-        other.date == date &&
-        other.type == type &&
-        other.id == id &&
-        listEquals(other.image, image);
-  }
-
-  @override
-  int get hashCode {
-    return content.hashCode ^
-        image.hashCode ^
-        date.hashCode ^
-        type.hashCode ^
-        id.hashCode;
   }
 }

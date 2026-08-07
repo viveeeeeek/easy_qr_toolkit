@@ -44,7 +44,7 @@ class ResultDataSection extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
-        _buildIconHeader(context, Icons.wifi),
+        _buildIconHeader(context, wifi.isHidden ? Icons.wifi_off_rounded : Icons.wifi),
         16.h,
         Text(
           wifi.ssid,
@@ -52,21 +52,51 @@ class ResultDataSection extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         8.h,
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: colorScheme.outlineVariant),
-          ),
-          child: Text(
-            'Security: ${wifi.type}',
-            style: TextStyle(
-              fontSize: 12,
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 8,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: colorScheme.outlineVariant),
+              ),
+              child: Text(
+                'Security: ${wifi.type}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
-          ),
+            if (wifi.isHidden)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: colorScheme.errorContainer,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.visibility_off_outlined, size: 14, color: colorScheme.onErrorContainer),
+                    4.w,
+                    Text(
+                      'Hidden Network',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colorScheme.onErrorContainer,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
         ),
         24.h,
         _buildInfoRow(context, Icons.lock_outline, wifi.password),
@@ -113,13 +143,10 @@ class ResultDataSection extends StatelessWidget {
       children: [
         _buildIconHeader(context, Icons.link),
         16.h,
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Text(
-            url,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center,
-          ),
+        _buildScrollableTextContent(
+          context,
+          url,
+          const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
         ),
       ],
     );
@@ -130,13 +157,10 @@ class ResultDataSection extends StatelessWidget {
       children: [
         _buildIconHeader(context, Icons.location_on),
         16.h,
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Text(
-            location,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center,
-          ),
+        _buildScrollableTextContent(
+          context,
+          location,
+          const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
         ),
       ],
     );
@@ -147,14 +171,69 @@ class ResultDataSection extends StatelessWidget {
       children: [
         _buildIconHeader(context, Icons.text_fields),
         16.h,
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 18),
-            textAlign: TextAlign.center,
+        _buildScrollableTextContent(
+          context,
+          text,
+          const TextStyle(fontSize: 18),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildScrollableTextContent(
+    BuildContext context,
+    String text,
+    TextStyle style,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final scrollController = ScrollController();
+    final isLong = text.length > 80 || text.contains('\n');
+
+    return Column(
+      children: [
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 180),
+          child: Scrollbar(
+            controller: scrollController,
+            thumbVisibility: isLong,
+            radius: const Radius.circular(8),
+            child: SingleChildScrollView(
+              controller: scrollController,
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  text,
+                  style: style,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
           ),
         ),
+        if (isLong) ...[
+          8.h,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.unfold_more,
+                size: 14,
+                color: colorScheme.primary.withValues(alpha: 0.7),
+              ),
+              4.w,
+              Text(
+                'Scroll for more',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: colorScheme.primary.withValues(alpha: 0.7),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }

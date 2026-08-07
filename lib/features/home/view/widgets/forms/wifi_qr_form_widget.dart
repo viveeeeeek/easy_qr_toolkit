@@ -116,13 +116,21 @@ class _WifiQrInputCardState extends ConsumerState<WifiQrFormWidget> {
               ),
             ),
             const SizedBox(width: 12),
-            FilterChip(
-              label: const Text('Hidden'),
-              selected: _isHidden,
-              onSelected: (val) {
-                setState(() => _isHidden = val);
-                _generate();
-              },
+            Tooltip(
+              message: 'Enable if the Wi-Fi network SSID is hidden (non-broadcasting)',
+              child: FilterChip(
+                showCheckmark: false,
+                avatar: Icon(
+                  _isHidden ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                  size: 16,
+                ),
+                label: const Text('Hidden'),
+                selected: _isHidden,
+                onSelected: (val) {
+                  setState(() => _isHidden = val);
+                  _generate();
+                },
+              ),
             ),
           ],
         ),
