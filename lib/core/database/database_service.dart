@@ -99,16 +99,7 @@ class DatabaseService {
       _scansTableName,
       columns: [_columnId, _columnContent, _columnDate, _columnType],
     );
-    return List.generate(maps.length, (index) {
-      return ScanDataModel(
-        id: maps[index][_columnId],
-        content: maps[index][_columnContent],
-        date: maps[index][_columnDate],
-        image: null,
-        // Image loaded on demand
-        type: maps[index][_columnType] ?? 'text',
-      );
-    });
+    return maps.map(ScanDataModel.fromMap).toList();
   }
 
   /// Get specific image for a scan ID
