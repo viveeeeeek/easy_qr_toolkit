@@ -1,4 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  AppWidgetProvider metadata definition file.
+  This file configures the native Android launcher properties, sizing constraints, 
+  and initial layout rendering for the Scanner Home Widget.
+
+  ATTRIBUTE DIRECTORY & BEHAVIORAL PURPOSE:
+  
+  1. android:minWidth ("50dp") / android:minHeight ("50dp")
+     - Minimum dimensions in dp required on launcher grid for widget placement (50dp ~ 1 grid cell).
+     
+  2. android:maxResizeWidth ("180dp") / android:maxResizeHeight ("110dp")
+     - Upper bounds threshold in dp up to which launcher permits horizontal/vertical user resizing.
+     
+  3. android:targetCellWidth ("2") / android:targetCellHeight ("1")
+     - Android 12+ (API 31+): Default grid cell span when initially dropped from widget picker catalog (2 cells wide x 1 cell tall).
+     
+  4. android:updatePeriodMillis ("0")
+     - Disables automatic OS background polling (0ms). Saves battery by avoiding fixed 30-min polling alarms. Updates are event-driven.
+     
+  5. android:initialLayout ("@layout/widget_scanner")
+     - The native XML layout inflated when the widget is first placed on the user's home screen.
+     
+  6. android:previewLayout ("@layout/widget_scanner")
+     - The native XML layout preview shown inside the Android launcher widget selection menu.
+     
+  7. android:resizeMode ("horizontal|vertical")
+     - Enables interactive user resizing in both horizontal and vertical directions on the launcher grid.
+     
+  8. android:widgetCategory ("home_screen")
+     - Specifies placement area suitability (home_screen vs keyguard/lockscreen).
+     
+  9. android:description ("@string/widget_description")
+     - Localized user-facing description string shown under the widget entry in the launcher widget catalog.
+-->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="50dp"
     android:minHeight="50dp"
@@ -13,3 +47,5 @@
     android:widgetCategory="home_screen"
     android:description="@string/widget_description">
 </appwidget-provider>
+
+
