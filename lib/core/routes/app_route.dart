@@ -1,6 +1,7 @@
 import 'package:easy_qr_toolkit/core/constants/app_constants.dart';
-import 'package:easy_qr_toolkit/features/scanner/view/qr_scan_view.dart';
 import 'package:easy_qr_toolkit/features/history/view/history_view.dart';
+import 'package:easy_qr_toolkit/features/scanner/view/qr_scan_view.dart';
+import 'package:easy_qr_toolkit/features/settings/view/settings_view.dart';
 import 'package:flutter/material.dart';
 
 import '../../features/home/view/home_view.dart';
@@ -9,4 +10,5 @@ final appRoutes = {
   AppRoutes.home: (BuildContext context) => const HomeView(),
   AppRoutes.scan: (BuildContext context) => const QRScanView(),
   AppRoutes.history: (BuildContext context) => const QRScanHistoryView(),
+  AppRoutes.settings: (BuildContext context) => const SettingsView(),
 };

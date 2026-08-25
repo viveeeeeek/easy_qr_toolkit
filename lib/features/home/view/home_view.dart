@@ -7,7 +7,6 @@ import 'package:home_widget/home_widget.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/enums/qr_type.dart';
-import '../../settings/view/theme_settings_bottom_sheet.dart';
 import '../generator_provider.dart';
 import 'widgets/smart_input_container.dart';
 import 'widgets/qr_type_selector.dart';
@@ -118,14 +117,12 @@ class _HomeViewState extends ConsumerState<HomeView> with RouteAware {
                 ),
                 IconButton(
                   onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      showDragHandle: true,
-                      builder: (context) => const ThemeSettingsBottomSheet(),
-                    );
+                    // Unfocus before navigating
+                    _inputFocusNode.unfocus();
+                    Navigator.pushNamed(context, AppRoutes.settings);
                   },
-                  icon: const Icon(Icons.palette_outlined),
-                  tooltip: 'Theme',
+                  icon: const Icon(Icons.settings_outlined),
+                  tooltip: 'Settings',
                 ),
                 const SizedBox(width: 8),
               ],
