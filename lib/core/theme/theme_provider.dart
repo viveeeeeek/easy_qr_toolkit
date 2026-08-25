@@ -1,6 +1,6 @@
 import 'package:easy_qr_toolkit/core/constants/app_constants.dart';
 import 'package:easy_qr_toolkit/core/providers/shared_preferences_provider.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'theme_provider.g.dart';

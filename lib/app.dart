@@ -5,9 +5,9 @@ import 'package:easy_qr_toolkit/core/theme/app_theme.dart';
 import 'package:easy_qr_toolkit/core/theme/theme_provider.dart';
 import 'package:easy_qr_toolkit/features/home/view/home_view.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/qr_scan_view.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 class App extends ConsumerWidget {
   final Uri? initialWidgetUri;

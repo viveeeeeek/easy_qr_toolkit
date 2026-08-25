@@ -4,7 +4,7 @@ import 'package:easy_qr_toolkit/features/scanner/provider/scanner_provider.dart'
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/result_data_section.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/result_action_buttons.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/smart_action_buttons.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:easy_qr_toolkit/features/scanner/view/qr_scan_view.dart';

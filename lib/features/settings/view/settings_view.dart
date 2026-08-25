@@ -1,7 +1,7 @@
 import 'package:easy_qr_toolkit/features/settings/view/widgets/about_app_section.dart';
 import 'package:easy_qr_toolkit/features/settings/view/widgets/appearance_section.dart';
 import 'package:easy_qr_toolkit/features/settings/view/widgets/m3_grouped_card.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});

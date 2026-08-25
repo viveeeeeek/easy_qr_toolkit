@@ -2,7 +2,7 @@ import 'package:easy_qr_toolkit/core/enums/qr_type.dart';
 import 'package:easy_qr_toolkit/core/extensions/int.dart';
 import 'package:easy_qr_toolkit/core/utils/wifi_parser.dart';
 import 'package:easy_qr_toolkit/features/history/scan_data_model.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

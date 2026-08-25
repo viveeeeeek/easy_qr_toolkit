@@ -1,6 +1,6 @@
 import 'package:easy_qr_toolkit/core/extensions/sizedbox.dart';
 import 'package:easy_qr_toolkit/core/utils/wifi_parser.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 
 class ResultDataSection extends StatelessWidget {

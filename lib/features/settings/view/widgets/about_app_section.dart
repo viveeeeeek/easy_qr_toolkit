@@ -1,7 +1,7 @@
 import 'package:easy_qr_toolkit/core/constants/app_constants.dart';
 import 'package:easy_qr_toolkit/core/providers/package_info_provider.dart';
 import 'package:easy_qr_toolkit/features/settings/view/widgets/m3_grouped_card.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';

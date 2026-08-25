@@ -1,6 +1,6 @@
 import 'package:easy_qr_toolkit/core/constants/app_constants.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/scanner_buttons.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScannerAppBar extends StatelessWidget implements PreferredSizeWidget {

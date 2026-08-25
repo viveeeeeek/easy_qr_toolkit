@@ -5,7 +5,7 @@ import 'package:easy_qr_toolkit/core/extensions/int.dart';
 import 'package:easy_qr_toolkit/features/history/scan_data_model.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/result_data_section.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/smart_action_buttons.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class HistoryDetailsSheetContent extends StatelessWidget {
   final ScanDataModel item;
