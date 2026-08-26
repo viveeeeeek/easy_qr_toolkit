@@ -23,8 +23,8 @@ void main() {
     PackageInfo.setMockInitialValues(
       appName: 'Easy QR Toolkit',
       packageName: 'com.billionants.easy_qr_toolkit',
-      version: '3.0.2',
-      buildNumber: '5',
+      version: '3.1.0',
+      buildNumber: '6',
       buildSignature: '',
     );
     final packageInfo = await PackageInfo.fromPlatform();
@@ -51,13 +51,13 @@ void main() {
     expect(find.text('Dynamic Color'), findsOneWidget);
     expect(find.text('Custom Theme Colors'), findsOneWidget);
     expect(find.text('Theme Mode'), findsOneWidget);
-    expect(find.text('System'), findsOneWidget);
-    expect(find.text('Light'), findsOneWidget);
-    expect(find.text('Dark'), findsOneWidget);
+    expect(find.text('System'), findsWidgets);
+    expect(find.text('Light'), findsWidgets);
+    expect(find.text('Dark'), findsWidgets);
 
     // Verify About App Section elements
     expect(find.text('Easy QR Toolkit'), findsOneWidget);
-    expect(find.text('v3.0.2 (5)'), findsOneWidget);
+    expect(find.text('v3.1.0 (6)'), findsOneWidget);
     expect(find.text('Rate on Google Play'), findsOneWidget);
     expect(find.text('Share App'), findsOneWidget);
     expect(find.text('Open Source Licenses'), findsOneWidget);

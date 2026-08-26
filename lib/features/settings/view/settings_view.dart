@@ -1,6 +1,6 @@
+import 'package:easy_qr_toolkit/core/theme/m3_expressive.dart';
 import 'package:easy_qr_toolkit/features/settings/view/widgets/about_app_section.dart';
 import 'package:easy_qr_toolkit/features/settings/view/widgets/appearance_section.dart';
-import 'package:easy_qr_toolkit/features/settings/view/widgets/m3_grouped_card.dart';
 import 'package:material_ui/material_ui.dart';
 
 class SettingsView extends StatelessWidget {
@@ -14,10 +14,10 @@ class SettingsView extends StatelessWidget {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          SliverAppBar.large(
+          const SliverAppBar.large(
             pinned: true,
             scrolledUnderElevation: 0,
-            title: const Text('Settings'),
+            title: Text('Settings'),
           ),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
@@ -32,9 +32,10 @@ class SettingsView extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 // 3. Privacy & Local Storage Badge Card
-                M3GroupedCard(
-                  position: M3GroupPosition.single,
+                M3ECard(
+                  variant: M3ECardVariant.filled,
                   color: colorScheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(24),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 14,

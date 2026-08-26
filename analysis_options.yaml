@@ -46,6 +46,7 @@ analyzer:
     unused_import: ignore
   exclude:
     - build/**
+    - docs/**
     - android/**
     - ios/**
     - web/**

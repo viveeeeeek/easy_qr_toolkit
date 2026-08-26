@@ -1,7 +1,8 @@
 import 'dart:async';
 
-import 'package:material_ui/material_ui.dart';
+import 'package:easy_qr_toolkit/core/theme/m3_expressive.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../../generator_provider.dart';
 
@@ -86,53 +87,58 @@ class _WifiQrInputCardState extends ConsumerState<WifiQrFormWidget> {
         ),
         const SizedBox(height: 12),
 
-        // Encryption and Hidden Row
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _encryption,
-                    icon: const Icon(Icons.arrow_drop_down_rounded),
-                    items: const [
-                       DropdownMenuItem(value: 'WPA', child: Text('WPA/WPA2')),
-                       DropdownMenuItem(value: 'WEP', child: Text('WEP')),
-                       DropdownMenuItem(value: 'nopass', child: Text('None')),
-                    ],
-                    onChanged: (val) {
-                      if (val != null) {
-                        setState(() => _encryption = val);
-                        _generate();
-                      }
-                    },
-                  ),
-                ),
+        // Security (Encryption) Selector
+        SizedBox(
+          width: double.infinity,
+          child: M3EButtonGroup(
+            type: M3EButtonGroupType.connected,
+            style: M3EButtonStyle.tonal,
+            selectedIndex: switch (_encryption) {
+              'WPA' => 0,
+              'WEP' => 1,
+              _ => 2,
+            },
+            onSelectedIndexChanged: (index) {
+              if (index == null) return;
+              final sec = switch (index) {
+                0 => 'WPA',
+                1 => 'WEP',
+                _ => 'nopass',
+              };
+              setState(() => _encryption = sec);
+              _generate();
+            },
+            actions: const [
+              M3EButtonGroupAction(label: Text('WPA/WPA2')),
+              M3EButtonGroupAction(label: Text('WEP')),
+              M3EButtonGroupAction(label: Text('None')),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        // Hidden Network Option
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Tooltip(
+            message:
+                'Enable if the Wi-Fi network SSID is hidden (non-broadcasting)',
+            child: M3EChip(
+              label: 'Hidden Network',
+              type: M3EChipType.filter,
+              selected: _isHidden,
+              leading: Icon(
+                _isHidden
+                    ? Icons.visibility_off_rounded
+                    : Icons.visibility_rounded,
+                size: 18,
               ),
+              onPressed: () {
+                setState(() => _isHidden = !_isHidden);
+                _generate();
+              },
             ),
-            const SizedBox(width: 12),
-            Tooltip(
-              message: 'Enable if the Wi-Fi network SSID is hidden (non-broadcasting)',
-              child: FilterChip(
-                showCheckmark: false,
-                avatar: Icon(
-                  _isHidden ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                  size: 16,
-                ),
-                label: const Text('Hidden'),
-                selected: _isHidden,
-                onSelected: (val) {
-                  setState(() => _isHidden = val);
-                  _generate();
-                },
-              ),
-            ),
-          ],
+          ),
         ),
       ],
     );

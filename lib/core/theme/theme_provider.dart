@@ -61,7 +61,7 @@ class ThemeController extends _$ThemeController {
     // Update state directly
     state = state.copyWith(seedColor: color, isDynamic: false);
 
-    await prefs.setInt(AppPrefsKeys.seedColor, color.value);
+    await prefs.setInt(AppPrefsKeys.seedColor, color.toARGB32());
     await prefs.setBool(AppPrefsKeys.isDynamicColor, false);
   }
 

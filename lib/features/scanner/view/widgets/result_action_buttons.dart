@@ -1,5 +1,6 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:easy_qr_toolkit/core/theme/m3_expressive.dart';
 import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ResultActionButtons extends StatelessWidget {
@@ -19,22 +20,24 @@ class ResultActionButtons extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildUtilityButton(
-              context,
-              icon: Icons.copy,
-              label: 'Copy',
-              onTap: () {
+            M3EButton.icon(
+              style: M3EButtonStyle.tonal,
+              size: M3EButtonSize.sm,
+              icon: const Icon(Icons.copy_rounded, size: 18),
+              label: const Text('Copy'),
+              onPressed: () {
                 Clipboard.setData(ClipboardData(text: content));
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Copied to clipboard')),
                 );
               },
             ),
-            _buildUtilityButton(
-              context,
-              icon: Icons.share,
-              label: 'Share',
-              onTap: () => Share.share(
+            M3EButton.icon(
+              style: M3EButtonStyle.tonal,
+              size: M3EButtonSize.sm,
+              icon: const Icon(Icons.share_rounded, size: 18),
+              label: const Text('Share'),
+              onPressed: () => Share.share(
                 'Scanned with Easy QR Toolkit:\n'
                 '$content\n\n'
                 'Get the app: https://play.google.com/store/apps/details?id=com.billionants.easy_qr_toolkit',
@@ -45,38 +48,14 @@ class ResultActionButtons extends StatelessWidget {
         const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
-          height: 50,
-          child: FilledButton(
+          child: M3EButton(
+            style: M3EButtonStyle.filled,
+            size: M3EButtonSize.md,
             onPressed: onScanAgain,
-            style: FilledButton.styleFrom(
-              elevation: 0,
-              backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-              foregroundColor: Theme.of(context).colorScheme.onInverseSurface,
-            ),
             child: const Text('Scan Another Code'),
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildUtilityButton(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return TextButton.icon(
-      onPressed: onTap,
-      icon: Icon(icon, size: 20, color: colorScheme.secondary),
-      label: Text(
-        label,
-        style: TextStyle(color: colorScheme.secondary),
-      ),
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      ),
     );
   }
 }

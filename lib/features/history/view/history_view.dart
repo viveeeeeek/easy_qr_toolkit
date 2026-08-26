@@ -1,13 +1,14 @@
 import 'dart:typed_data';
 
+import 'package:easy_qr_toolkit/core/theme/m3_expressive.dart';
 import 'package:easy_qr_toolkit/features/history/provider/history_state.dart';
 import 'package:easy_qr_toolkit/features/history/scan_data_model.dart';
 import 'package:easy_qr_toolkit/features/history/view/widgets/history_details_sheet_content.dart';
 import 'package:easy_qr_toolkit/features/history/view/widgets/history_filter_chips.dart';
 import 'package:easy_qr_toolkit/features/history/view/widgets/history_list_item.dart';
 import 'package:easy_qr_toolkit/features/history/view/widgets/qr_image_dialog.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../../core/enums/qr_type.dart';
 import '../provider/history_provider.dart';
@@ -40,7 +41,6 @@ class _QRScanHistoryViewState extends ConsumerState<QRScanHistoryView> {
   @override
   Widget build(BuildContext context) {
     final historyAsync = ref.watch(historyProvider);
-    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       body: CustomScrollView(
@@ -52,11 +52,13 @@ class _QRScanHistoryViewState extends ConsumerState<QRScanHistoryView> {
             scrolledUnderElevation: 0,
             title: const Text('Scan History'),
             actions: [
-              IconButton(
+              M3EIconButton(
+                variant: M3EIconButtonVariant.tonal,
                 icon: const Icon(Icons.delete_sweep_outlined),
                 onPressed: () => _showClearAllDialog(context),
                 tooltip: 'Clear All',
               ),
+              const SizedBox(width: 12),
             ],
           ),
 
@@ -64,33 +66,28 @@ class _QRScanHistoryViewState extends ConsumerState<QRScanHistoryView> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: TextField(
+              child: M3ESearchBar(
                 controller: _searchController,
+                hintText: 'Search history...',
+                leading: const Icon(Icons.search_rounded),
+                trailing: [
+                  if (_searchController.text.isNotEmpty)
+                    M3EIconButton(
+                      size: M3EIconButtonSize.xs,
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () {
+                        _searchController.clear();
+                        ref
+                            .read(historyProvider.notifier)
+                            .setSearchQuery('');
+                        setState(() {});
+                      },
+                    ),
+                ],
                 onChanged: (value) {
                   ref.read(historyProvider.notifier).setSearchQuery(value);
+                  setState(() {});
                 },
-                decoration: InputDecoration(
-                  hintText: 'Search history...',
-                  prefixIcon: const Icon(Icons.search_rounded),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.close_rounded),
-                          onPressed: () {
-                            _searchController.clear();
-                            ref
-                                .read(historyProvider.notifier)
-                                .setSearchQuery('');
-                          },
-                        )
-                      : null,
-                  filled: true,
-                  fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                ),
               ),
             ),
           ),
@@ -132,21 +129,25 @@ class _QRScanHistoryViewState extends ConsumerState<QRScanHistoryView> {
   void _showClearAllDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear History'),
-        content: const Text('Are you sure you want to delete all scan history? This action cannot be undone.'),
+      builder: (context) => M3EDialog(
+        title: 'Clear History',
+        icon: const Icon(Icons.delete_sweep_outlined),
+        content: const Text(
+          'Are you sure you want to delete all scan history? This action cannot be undone.',
+        ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
+          M3EButton(
+            style: M3EButtonStyle.text,
             child: const Text('Cancel'),
+            onPressed: () => Navigator.pop(context),
           ),
-          TextButton(
+          M3EButton(
+            style: M3EButtonStyle.filled,
+            child: const Text('Delete All'),
             onPressed: () {
               ref.read(historyProvider.notifier).clearAllScans();
               Navigator.pop(context);
             },
-            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
-            child: const Text('Delete All'),
           ),
         ],
       ),
