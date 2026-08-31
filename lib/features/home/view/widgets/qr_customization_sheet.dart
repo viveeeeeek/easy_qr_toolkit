@@ -2,9 +2,12 @@ import 'dart:io';
 
 import 'package:easy_qr_toolkit/core/extensions/color_extension.dart';
 import 'package:easy_qr_toolkit/core/extensions/sizedbox.dart';
-import 'package:flutter/material.dart';
+import 'package:easy_qr_toolkit/core/theme/m3_expressive.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:material_new_shapes/material_new_shapes.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:vector_math/vector_math_64.dart' show Vector3;
 
 import '../../../../core/enums/qr_shape.dart';
 import '../../generator_provider.dart';
@@ -24,7 +27,6 @@ class QrCustomizationSheet extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-
           24.h,
           Text(
             'Customize QR',
@@ -37,7 +39,7 @@ class QrCustomizationSheet extends ConsumerWidget {
           const _QrColorPicker(),
           24.h,
           const _QrLogoPicker(),
-          16.h, // Extra breathing space at bottom
+          16.h,
         ],
       ),
     );
@@ -61,26 +63,23 @@ class _QrStylePicker extends ConsumerWidget {
               ),
         ),
         12.h,
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: QrShape.values.map((shape) {
-              final isSelected = shape == selectedShape;
-              return Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: FilterChip(
-                  label: Text(
-                      shape.name[0].toUpperCase() + shape.name.substring(1)),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (selected) {
-                      _updateShape(ref, shape);
-                    }
-                  },
-                  showCheckmark: false,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+        SizedBox(
+          width: double.infinity,
+          child: M3EButtonGroup(
+            type: M3EButtonGroupType.connected,
+            style: M3EButtonStyle.tonal,
+            selectedIndex: selectedShape.index,
+            onSelectedIndexChanged: (index) {
+              if (index != null &&
+                  index >= 0 &&
+                  index < QrShape.values.length) {
+                _updateShape(ref, QrShape.values[index]);
+              }
+            },
+            actions: QrShape.values.map((shape) {
+              return M3EButtonGroupAction(
+                label: Text(
+                  shape.name[0].toUpperCase() + shape.name.substring(1),
                 ),
               );
             }).toList(),
@@ -101,7 +100,8 @@ class _QrColorPicker extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedColor = ref.watch(generatorProvider.select((s) => s.qrColor));
+    final selectedColor =
+        ref.watch(generatorProvider.select((s) => s.qrColor));
 
     // Curated M3-safe colors for QR codes (high contrast)
     final colors = [
@@ -125,45 +125,21 @@ class _QrColorPicker extends ConsumerWidget {
         ),
         12.h,
         SizedBox(
-          height: 48,
+          height: 52,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
             itemCount: colors.length,
-            separatorBuilder: (context, index) => 12.w,
+            separatorBuilder: (context, index) => const SizedBox(width: 10),
             itemBuilder: (context, index) {
               final color = colors[index];
-              final isSelected = color.value == selectedColor.value;
+              final isSelected =
+                  color.toARGB32() == selectedColor.toARGB32();
 
-              return GestureDetector(
+              return _QrColorMorphSwatchItem(
+                color: color,
+                isSelected: isSelected,
                 onTap: () => _updateColor(ref, color),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  width: 44,
-                  height: 44,
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSelected ? context.primary : Colors.transparent,
-                      width: 2,
-                    ),
-                  ),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        if (isSelected)
-                          BoxShadow(
-                            color: color.withValues(alpha:0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
               );
             },
           ),
@@ -175,6 +151,110 @@ class _QrColorPicker extends ConsumerWidget {
   void _updateColor(WidgetRef ref, Color color) {
     final generator = ref.read(generatorProvider.notifier);
     generator.updateState(qrColor: color);
+  }
+}
+
+class _QrColorMorphSwatchItem extends StatelessWidget {
+  final Color color;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  static final Morph _morph = Morph(
+    MaterialShapes.circle,
+    MaterialShapes.verySunny,
+  );
+
+  const _QrColorMorphSwatchItem({
+    required this.color,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: SizedBox(
+        width: 52,
+        height: 52,
+        child: TweenAnimationBuilder<double>(
+          tween: Tween<double>(
+            begin: isSelected ? 1.0 : 0.0,
+            end: isSelected ? 1.0 : 0.0,
+          ),
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOutCubic,
+          builder: (context, progress, child) {
+            return CustomPaint(
+              size: const Size(52, 52),
+              painter: _M3ESingleColorMorphPainter(
+                morph: _morph,
+                progress: progress,
+                color: color,
+                selectionBorderColor: Theme.of(context).colorScheme.primary,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _M3ESingleColorMorphPainter extends CustomPainter {
+  final Morph morph;
+  final double progress;
+  final Color color;
+  final Color selectionBorderColor;
+
+  _M3ESingleColorMorphPainter({
+    required this.morph,
+    required this.progress,
+    required this.color,
+    required this.selectionBorderColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    const innerSize = 38.0;
+    const outerSize = 48.0;
+
+    // 1. Draw outer selection morph ring when progress > 0
+    if (progress > 0.01) {
+      final outerPath = morph.toPath(progress: progress);
+      final outerMatrix = Matrix4.identity()
+        ..translateByVector3(
+            Vector3(center.dx - outerSize / 2, center.dy - outerSize / 2, 0.0))
+        ..scaleByVector3(Vector3(outerSize, outerSize, 1.0));
+      final scaledOuterPath = outerPath.transform(outerMatrix.storage);
+
+      final ringPaint = Paint()
+        ..color = selectionBorderColor.withValues(alpha: progress)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0;
+      canvas.drawPath(scaledOuterPath, ringPaint);
+    }
+
+    // 2. Draw inner morphing color fill
+    final innerPath = morph.toPath(progress: progress);
+    final innerMatrix = Matrix4.identity()
+      ..translateByVector3(
+          Vector3(center.dx - innerSize / 2, center.dy - innerSize / 2, 0.0))
+      ..scaleByVector3(Vector3(innerSize, innerSize, 1.0));
+    final scaledInnerPath = innerPath.transform(innerMatrix.storage);
+
+    final fillPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(scaledInnerPath, fillPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _M3ESingleColorMorphPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.color != color ||
+        oldDelegate.selectionBorderColor != selectionBorderColor;
   }
 }
 
@@ -216,10 +296,10 @@ class _QrLogoPicker extends ConsumerWidget {
                 ),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: context.surfaceVariant.withValues(alpha:0.5),
+                    color: context.surfaceVariant.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: context.outlineVariant.withValues(alpha:0.5),
+                      color: context.outlineVariant.withValues(alpha: 0.5),
                     ),
                   ),
                   child: selectedLogo != null
@@ -234,59 +314,76 @@ class _QrLogoPicker extends ConsumerWidget {
                 ),
               ),
             ),
-            if (selectedLogo != null) ...[
-              16.w,
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Size',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    8.h,
-                    SegmentedButton<double>(
-                      segments: [
-                        _sizeSegment(0.15, 'Small'),
-                        _sizeSegment(0.20, 'Medium'),
-                        _sizeSegment(0.25, 'Large'),
-                      ],
-                      selected: {logoScale},
-                      onSelectionChanged: (Set<double> newSelection) {
-                        ref.read(generatorProvider.notifier).updateState(
-                              logoScale: newSelection.first,
-                            );
-                      },
-                      style: ButtonStyle(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        visualDensity: VisualDensity.compact,
-                        padding: WidgetStateProperty.all(EdgeInsets.zero),
-                      ),
-                      showSelectedIcon: false,
-                    ),
-                  ],
-                ),
+            16.w,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    selectedLogo != null ? 'Logo Selected' : 'Embed a logo',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    selectedLogo != null
+                        ? 'Tap image to change'
+                        : 'Displays in center of QR',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: context.onSurfaceVariant,
+                        ),
+                  ),
+                ],
               ),
+            ),
+            if (selectedLogo != null) ...[
               8.w,
-              IconButton(
+              M3EIconButton(
+                variant: M3EIconButtonVariant.tonal,
                 onPressed: () => _clearLogo(ref),
                 icon: const Icon(Icons.close_rounded),
-                color: context.error,
                 tooltip: 'Remove',
-              ),
-            ] else ...[
-              16.w,
-              Expanded(
-                child: Text(
-                  'Embed a logo',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: context.onSurfaceVariant,
-                      ),
-                ),
               ),
             ],
           ],
         ),
+        if (selectedLogo != null) ...[
+          14.h,
+          Text(
+            'Size',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: context.onSurfaceVariant,
+                ),
+          ),
+          8.h,
+          SizedBox(
+            width: double.infinity,
+            child: M3EButtonGroup(
+              type: M3EButtonGroupType.connected,
+              style: M3EButtonStyle.tonal,
+              selectedIndex: logoScale <= 0.16
+                  ? 0
+                  : (logoScale <= 0.22 ? 1 : 2),
+              onSelectedIndexChanged: (index) {
+                if (index == null) return;
+                final scale = switch (index) {
+                  0 => 0.15,
+                  1 => 0.20,
+                  _ => 0.25,
+                };
+                ref.read(generatorProvider.notifier).updateState(
+                      logoScale: scale,
+                    );
+              },
+              actions: const [
+                M3EButtonGroupAction(label: Text('Small')),
+                M3EButtonGroupAction(label: Text('Medium')),
+                M3EButtonGroupAction(label: Text('Large')),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -308,15 +405,5 @@ class _QrLogoPicker extends ConsumerWidget {
   void _clearLogo(WidgetRef ref) {
     final generator = ref.read(generatorProvider.notifier);
     generator.updateState(clearLogo: true);
-  }
-
-  ButtonSegment<double> _sizeSegment(double value, String label) {
-    return ButtonSegment(
-      value: value,
-      label: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Text(label),
-      ),
-    );
   }
 }

@@ -2,10 +2,11 @@
 import 'dart:typed_data';
 import 'package:easy_qr_toolkit/core/enums/qr_type.dart';
 import 'package:easy_qr_toolkit/core/extensions/int.dart';
+import 'package:easy_qr_toolkit/core/theme/m3_expressive.dart';
 import 'package:easy_qr_toolkit/features/history/scan_data_model.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/result_data_section.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/smart_action_buttons.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class HistoryDetailsSheetContent extends StatelessWidget {
   final ScanDataModel item;
@@ -79,13 +80,13 @@ class HistoryDetailsSheetContent extends StatelessWidget {
                       const SizedBox(height: 24),
 
                       // View/Download QR Button
-                      OutlinedButton.icon(
-                        onPressed: () => onViewQrCode(item.image, item.content),
-                        icon: const Icon(Icons.qr_code_2),
-                        label: const Text('View Original QR Code'),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          side: BorderSide(color: theme.colorScheme.outlineVariant),
+                      Center(
+                        child: M3EButton.icon(
+                          style: M3EButtonStyle.tonal,
+                          size: M3EButtonSize.md,
+                          onPressed: () => onViewQrCode(item.image, item.content),
+                          icon: const Icon(Icons.qr_code_2_rounded),
+                          label: const Text('View Original QR Code'),
                         ),
                       ),
 

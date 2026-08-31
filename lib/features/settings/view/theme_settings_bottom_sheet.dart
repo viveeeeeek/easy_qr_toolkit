@@ -1,7 +1,8 @@
-import 'package:easy_qr_toolkit/features/settings/view/widgets/theme_swatch_preview.dart';
+import 'package:easy_qr_toolkit/core/theme/m3_expressive.dart';
 import 'package:easy_qr_toolkit/core/theme/theme_provider.dart';
-import 'package:flutter/material.dart';
+import 'package:easy_qr_toolkit/features/settings/view/widgets/theme_swatch_preview.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 class ThemeSettingsBottomSheet extends ConsumerWidget {
   const ThemeSettingsBottomSheet({super.key});
@@ -37,14 +38,33 @@ class ThemeSettingsBottomSheet extends ConsumerWidget {
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 24),
-          SwitchListTile(
-            title: const Text('Dynamic Color'),
-            subtitle: const Text('Use system wallpaper colors'),
-            value: themeState.isDynamic,
-            onChanged: (value) {
-              ref.read(themeControllerProvider.notifier).toggleDynamicColor(value);
-            },
-            contentPadding: EdgeInsets.zero,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Dynamic Color',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(
+                    'Use system wallpaper colors',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+              M3ESwitch(
+                value: themeState.isDynamic,
+                selectedIcon: const Icon(Icons.check_rounded, size: 14),
+                unselectedIcon: const Icon(Icons.close_rounded, size: 14),
+                onChanged: (value) {
+                  ref
+                      .read(themeControllerProvider.notifier)
+                      .toggleDynamicColor(value);
+                },
+              ),
+            ],
           ),
           const SizedBox(height: 24),
           const Text('Theme Colors'),
@@ -55,20 +75,18 @@ class ThemeSettingsBottomSheet extends ConsumerWidget {
               scrollDirection: Axis.horizontal,
               itemCount: _swatches.length,
               separatorBuilder: (c, i) => const SizedBox(width: 12),
-
-
               itemBuilder: (context, index) {
                 final color = _swatches[index];
-                // If dynamic is enabled, we still show selection but maybe dim it? 
-                // Or user selecting a color automatically disables dynamic (handled in provider).
-                // Here we check if selected.
-                final isSelected = !themeState.isDynamic && themeState.seedColor.value == color.value;
+                final isSelected = !themeState.isDynamic &&
+                    themeState.seedColor.toARGB32() == color.toARGB32();
 
                 return ThemeSwatchPreview(
                   seedColor: color,
                   isSelected: isSelected,
                   onTap: () {
-                    ref.read(themeControllerProvider.notifier).setSeedColor(color);
+                    ref
+                        .read(themeControllerProvider.notifier)
+                        .setSeedColor(color);
                   },
                 );
               },
@@ -79,16 +97,37 @@ class ThemeSettingsBottomSheet extends ConsumerWidget {
            const SizedBox(height: 12),
            SizedBox(
              width: double.infinity,
-             child: SegmentedButton<ThemeMode>(
-              segments: const [
-                ButtonSegment(value: ThemeMode.system, label: Text('System'), icon: Icon(Icons.brightness_auto)),
-                ButtonSegment(value: ThemeMode.light, label: Text('Light'), icon: Icon(Icons.light_mode)),
-                ButtonSegment(value: ThemeMode.dark, label: Text('Dark'), icon: Icon(Icons.dark_mode)),
-              ],
-              selected: {themeState.themeMode},
-              onSelectionChanged: (Set<ThemeMode> newSelection) {
-                 ref.read(themeControllerProvider.notifier).setThemeMode(newSelection.first);
-              },
+             child: M3EButtonGroup(
+               type: M3EButtonGroupType.connected,
+               style: M3EButtonStyle.tonal,
+               selectedIndex: switch (themeState.themeMode) {
+                 ThemeMode.system => 0,
+                 ThemeMode.light => 1,
+                 ThemeMode.dark => 2,
+               },
+               onSelectedIndexChanged: (index) {
+                 if (index == null) return;
+                 final mode = switch (index) {
+                   0 => ThemeMode.system,
+                   1 => ThemeMode.light,
+                   _ => ThemeMode.dark,
+                 };
+                 ref.read(themeControllerProvider.notifier).setThemeMode(mode);
+               },
+               actions: const [
+                 M3EButtonGroupAction(
+                   label: Text('System'),
+                   icon: Icon(Icons.brightness_auto_rounded),
+                 ),
+                 M3EButtonGroupAction(
+                   label: Text('Light'),
+                   icon: Icon(Icons.light_mode_rounded),
+                 ),
+                 M3EButtonGroupAction(
+                   label: Text('Dark'),
+                   icon: Icon(Icons.dark_mode_rounded),
+                 ),
+               ],
              ),
            )
         ],

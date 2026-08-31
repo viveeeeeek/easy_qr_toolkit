@@ -1,6 +1,6 @@
 import 'package:dynamic_color/dynamic_color.dart';
-import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:material_ui/material_ui.dart';
 
 ColorScheme buildLightColorScheme({
   required ColorScheme? lightDynamic,
@@ -58,18 +58,38 @@ ThemeData buildDarkTheme(ColorScheme colorScheme) {
   );
 }
 
+TextTheme _applyGoogleFont(TextTheme base, Color color) {
+  return TextTheme(
+    displayLarge:
+        GoogleFonts.outfit(textStyle: base.displayLarge, color: color),
+    displayMedium:
+        GoogleFonts.outfit(textStyle: base.displayMedium, color: color),
+    displaySmall:
+        GoogleFonts.outfit(textStyle: base.displaySmall, color: color),
+    headlineLarge:
+        GoogleFonts.outfit(textStyle: base.headlineLarge, color: color),
+    headlineMedium:
+        GoogleFonts.outfit(textStyle: base.headlineMedium, color: color),
+    headlineSmall:
+        GoogleFonts.outfit(textStyle: base.headlineSmall, color: color),
+    titleLarge: GoogleFonts.outfit(textStyle: base.titleLarge, color: color),
+    titleMedium: GoogleFonts.outfit(textStyle: base.titleMedium, color: color),
+    titleSmall: GoogleFonts.outfit(textStyle: base.titleSmall, color: color),
+    bodyLarge: GoogleFonts.outfit(textStyle: base.bodyLarge, color: color),
+    bodyMedium: GoogleFonts.outfit(textStyle: base.bodyMedium, color: color),
+    bodySmall: GoogleFonts.outfit(textStyle: base.bodySmall, color: color),
+    labelLarge: GoogleFonts.outfit(textStyle: base.labelLarge, color: color),
+    labelMedium: GoogleFonts.outfit(textStyle: base.labelMedium, color: color),
+    labelSmall: GoogleFonts.outfit(textStyle: base.labelSmall, color: color),
+  );
+}
+
 /// Text theme for dark theme
 TextTheme buildDarkTextTheme() {
-  return GoogleFonts.outfitTextTheme().apply(
-    bodyColor: Colors.white,
-    displayColor: Colors.white,
-  );
+  return _applyGoogleFont(Typography.material2021().white, Colors.white);
 }
 
 /// Text theme for light theme
 TextTheme buildLightTextTheme() {
-  return GoogleFonts.outfitTextTheme().apply(
-    bodyColor: Colors.black,
-    displayColor: Colors.black,
-  );
+  return _applyGoogleFont(Typography.material2021().black, Colors.black);
 }

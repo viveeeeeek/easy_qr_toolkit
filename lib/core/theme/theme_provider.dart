@@ -1,6 +1,6 @@
 import 'package:easy_qr_toolkit/core/constants/app_constants.dart';
 import 'package:easy_qr_toolkit/core/providers/shared_preferences_provider.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'theme_provider.g.dart';
@@ -61,7 +61,7 @@ class ThemeController extends _$ThemeController {
     // Update state directly
     state = state.copyWith(seedColor: color, isDynamic: false);
 
-    await prefs.setInt(AppPrefsKeys.seedColor, color.value);
+    await prefs.setInt(AppPrefsKeys.seedColor, color.toARGB32());
     await prefs.setBool(AppPrefsKeys.isDynamicColor, false);
   }
 

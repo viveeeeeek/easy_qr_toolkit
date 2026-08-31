@@ -5,7 +5,7 @@ import 'package:easy_qr_toolkit/features/scanner/view/widgets/custom_scanner.dar
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/scanner_app_bar.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/widgets/scanner_overlay.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:image_picker/image_picker.dart';
@@ -45,6 +45,7 @@ class _QRScannerWidgetState extends ConsumerState<QRScanView> {
       if (mounted) {
         // Stop the camera before navigating to save resources
         await controller.stop();
+        if (!mounted) return;
         
         // Navigate to result view (state is already updated above)
         await Navigator.pushReplacement(
@@ -52,6 +53,7 @@ class _QRScannerWidgetState extends ConsumerState<QRScanView> {
           MaterialPageRoute(builder: (context) => const QRResultView()),
         );
         
+        if (!mounted) return;
         // When we return here, reset scanner and restart camera
         ref.read(scannerProvider.notifier).reset();
         await controller.start();

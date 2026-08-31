@@ -44,3 +44,12 @@ analyzer:
     fixme: ignore
     hack: ignore
     unused_import: ignore
+  exclude:
+    - build/**
+    - docs/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**

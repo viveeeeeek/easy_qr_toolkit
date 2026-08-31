@@ -1,6 +1,8 @@
 
 import 'dart:typed_data';
-import 'package:flutter/material.dart';
+
+import 'package:easy_qr_toolkit/core/theme/m3_expressive.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:saver_gallery/saver_gallery.dart';
 
 class QRImageDialog extends StatelessWidget {
@@ -11,24 +13,24 @@ class QRImageDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       contentPadding: const EdgeInsets.all(20),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.memory(imageBytes),
+            borderRadius: BorderRadius.circular(16),
+            child: Image.memory(
+              imageBytes,
+              fit: BoxFit.contain,
+            ),
           ),
           const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              FilledButton.icon(
-                onPressed: () => _saveImage(context),
-                icon: const Icon(Icons.download),
-                label: const Text('Save'),
-              ),
-            ],
+          M3EButton.icon(
+            style: M3EButtonStyle.filled,
+            icon: const Icon(Icons.download_rounded),
+            label: const Text('Save to Gallery'),
+            onPressed: () => _saveImage(context),
           ),
         ],
       ),

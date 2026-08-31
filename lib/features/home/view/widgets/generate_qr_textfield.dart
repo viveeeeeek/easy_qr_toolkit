@@ -1,23 +1,24 @@
 import 'dart:async';
 
 import 'package:easy_qr_toolkit/core/services/qr_service.dart';
-import 'package:flutter/material.dart';
+import 'package:easy_qr_toolkit/core/theme/m3_expressive.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 import '../../generator_provider.dart';
 
 class ModernQRInputCard extends ConsumerStatefulWidget {
   const ModernQRInputCard({
-    super.key, 
+    super.key,
     this.focusNode,
     this.onTypingStateChanged,
   });
 
   /// Optional external focus node for route-aware focus management
   final FocusNode? focusNode;
-  
+
   /// Callback when typing state changes (true = has text, false = empty)
   final ValueChanged<bool>? onTypingStateChanged;
 
@@ -60,10 +61,11 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
           onChanged: (data) => _onTextChanged(data, ref),
           inputFormatters: [
             FilteringTextInputFormatter.deny(RegExp(r'\n')),
+            LengthLimitingTextInputFormatter(2048),
           ],
           textInputAction: TextInputAction.done,
-          minLines: 4,
-          maxLines: null,
+          minLines: 3,
+          maxLines: 5,
           keyboardType: TextInputType.text,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 height: 1.5,
@@ -74,7 +76,7 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
               color: Theme.of(context)
                   .colorScheme
                   .onSurfaceVariant
-                  .withValues(alpha:0.5),
+                  .withValues(alpha: 0.5),
             ),
             filled: true,
             fillColor: Theme.of(context)
@@ -87,15 +89,19 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
             ),
             contentPadding: const EdgeInsets.all(24),
             suffixIcon: generatorData.data.isNotEmpty
-                ? IconButton(
-                    icon: const Icon(Icons.clear_rounded),
-                    onPressed: () {
-                      _controller.clear();
-                      generator.reset();
-                      // Notify parent that typing stopped
-                      widget.onTypingStateChanged?.call(false);
-                    },
-                    tooltip: 'Clear text',
+                ? Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: M3EIconButton(
+                      icon: const Icon(Icons.clear_rounded),
+                      size: M3EIconButtonSize.xs,
+                      onPressed: () {
+                        _controller.clear();
+                        generator.reset();
+                        // Notify parent that typing stopped
+                        widget.onTypingStateChanged?.call(false);
+                      },
+                      tooltip: 'Clear text',
+                    ),
                   )
                 : null,
           ),
@@ -103,7 +109,9 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
         const SizedBox(height: 12),
         // Hide paste button immediately when user types (check controller, not provider)
         if (_controller.text.isEmpty)
-          FilledButton.tonalIcon(
+          M3EButton.icon(
+            style: M3EButtonStyle.tonal,
+            size: M3EButtonSize.sm,
             onPressed: () async {
               final clipboardData =
                   await Clipboard.getData(Clipboard.kTextPlain);
@@ -116,9 +124,6 @@ class _ModernQRInputCardState extends ConsumerState<ModernQRInputCard> {
             },
             icon: const Icon(Icons.paste_rounded, size: 18),
             label: const Text('Paste from Clipboard'),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            ),
           ),
       ],
     );

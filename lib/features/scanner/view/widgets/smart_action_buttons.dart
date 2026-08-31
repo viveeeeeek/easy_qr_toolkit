@@ -2,11 +2,12 @@ import 'dart:io';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:easy_qr_toolkit/core/enums/qr_type.dart';
+import 'package:easy_qr_toolkit/core/theme/m3_expressive.dart';
 import 'package:easy_qr_toolkit/core/utils/wifi_parser.dart';
-import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SmartActionButtons extends StatelessWidget {
   final String content;
@@ -29,6 +30,7 @@ class SmartActionButtons extends StatelessWidget {
         children: [
           Wrap(
             spacing: 10,
+            runSpacing: 10,
             alignment: WrapAlignment.center,
             children: actions,
           ),
@@ -44,9 +46,11 @@ class SmartActionButtons extends StatelessWidget {
     // URL Action
     if (scanType == QrType.url || content.startsWith('http')) {
       buttons.add(
-        FilledButton.icon(
+        M3EButton.icon(
+          style: M3EButtonStyle.filled,
+          size: M3EButtonSize.md,
           onPressed: () => _launchUrl(content),
-          icon: const Icon(Icons.open_in_browser),
+          icon: const Icon(Icons.open_in_browser_rounded),
           label: const Text('Open Link'),
         ),
       );
@@ -55,7 +59,9 @@ class SmartActionButtons extends StatelessWidget {
     // WiFi Action
     if (scanType == QrType.wifi || content.startsWith('WIFI:')) {
       buttons.add(
-        FilledButton.icon(
+        M3EButton.icon(
+          style: M3EButtonStyle.filled,
+          size: M3EButtonSize.md,
           onPressed: () => _handleWifiConnect(context),
           icon: const Icon(Icons.wifi_find_rounded),
           label: const Text('Connect to Network'),
@@ -66,9 +72,11 @@ class SmartActionButtons extends StatelessWidget {
     // Geo/Maps Action
     if (scanType == QrType.geo || content.startsWith('geo:')) {
       buttons.add(
-        FilledButton.icon(
+        M3EButton.icon(
+          style: M3EButtonStyle.filled,
+          size: M3EButtonSize.md,
           onPressed: () => _launchUrl(content),
-          icon: const Icon(Icons.map_outlined),
+          icon: const Icon(Icons.map_rounded),
           label: const Text('Open in Maps'),
         ),
       );
@@ -77,9 +85,11 @@ class SmartActionButtons extends StatelessWidget {
     // Contact/vCard Action
     if (scanType == QrType.contact || content.contains('BEGIN:VCARD')) {
       buttons.add(
-        FilledButton.icon(
+        M3EButton.icon(
+          style: M3EButtonStyle.filled,
+          size: M3EButtonSize.md,
           onPressed: () => _saveContact(context),
-          icon: const Icon(Icons.person_add_alt_1),
+          icon: const Icon(Icons.person_add_alt_1_rounded),
           label: const Text('Add to Contacts'),
         ),
       );

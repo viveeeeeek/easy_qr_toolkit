@@ -1,10 +1,10 @@
 import 'package:easy_qr_toolkit/core/enums/qr_type.dart';
 import 'package:easy_qr_toolkit/core/extensions/int.dart';
+import 'package:easy_qr_toolkit/core/theme/m3_expressive.dart';
 import 'package:easy_qr_toolkit/core/utils/wifi_parser.dart';
 import 'package:easy_qr_toolkit/features/history/scan_data_model.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../provider/history_provider.dart';
 import '../../provider/vcard_cache_provider.dart';
@@ -42,52 +42,94 @@ class _HistoryListItemState extends ConsumerState<HistoryListItem> {
     final type = widget.item.type;
     final content = widget.item.content;
 
-    // Trigger resolution if needed (fire and forget, provider handles dedup)
     if (type == 'contact' || content.startsWith('BEGIN:VCARD')) {
-       // We use read here because we just want to trigger the action
-       // The watch below will handle the UI update
-       ref.read(vCardCacheProvider.notifier).resolve(content);
+      ref.read(vCardCacheProvider.notifier).resolve(content);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // 1. Determine Display Name efficiently
     final type = widget.item.type;
     final content = widget.item.content;
     String displayName = content;
+    IconData iconData = Icons.qr_code_rounded;
 
-    // Handle Contact vCard
     if (type == 'contact' || content.startsWith('BEGIN:VCARD')) {
-      // Watch ONLY the specific entry for this content
-      final cachedName = ref.watch(
-        vCardCacheProvider.select((map) => map[content])
-      );
-      
-      // Use cached name if available, otherwise show placeholder or raw content
+      final cachedName =
+          ref.watch(vCardCacheProvider.select((map) => map[content]));
       displayName = cachedName ?? 'Contact Card';
-    }
-    // Handle WiFi
-    else if (type == 'wifi' || content.startsWith('WIFI:')) {
+      iconData = Icons.person_rounded;
+    } else if (type == 'wifi' || content.startsWith('WIFI:')) {
       final wifi = WifiParser.parse(content);
       displayName = wifi?.ssid ?? 'WiFi Network';
+      iconData = Icons.wifi_rounded;
+    } else if (type == 'url' || content.startsWith('http')) {
+      iconData = Icons.link_rounded;
+    } else if (type == 'geo' || content.startsWith('geo:')) {
+      iconData = Icons.location_on_rounded;
     }
-    
-    return ListTile(
-      onTap: widget.onTap,
-      title: Text(
-        displayName,
-        style: const TextStyle(fontWeight: FontWeight.w500),
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(widget.item.date.toDateTime.formattedDateTime),
-      trailing: IconButton(
-        icon: const Icon(Icons.delete_outline),
-        onPressed: () {
-          if (widget.item.id != null) {
-            ref.read(historyProvider.notifier).deleteScan(widget.item.id!);
-          }
-        },
+
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      child: M3ECard(
+        variant: M3ECardVariant.filled,
+        borderRadius: BorderRadius.circular(20),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        onPressed: widget.onTap,
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                iconData,
+                color: colorScheme.onPrimaryContainer,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    displayName,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    widget.item.date.toDateTime.formattedDateTime,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            M3EIconButton(
+              variant: M3EIconButtonVariant.standard,
+              icon: const Icon(Icons.delete_outline_rounded),
+              tooltip: 'Delete',
+              onPressed: () {
+                if (widget.item.id != null) {
+                  ref
+                      .read(historyProvider.notifier)
+                      .deleteScan(widget.item.id!);
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

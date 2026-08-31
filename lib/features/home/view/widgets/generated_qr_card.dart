@@ -1,12 +1,14 @@
 import 'package:easy_qr_toolkit/core/extensions/color_extension.dart';
 import 'package:easy_qr_toolkit/core/extensions/sizedbox.dart';
 import 'package:easy_qr_toolkit/core/services/qr_service.dart';
+import 'package:easy_qr_toolkit/core/theme/m3_expressive.dart';
 import 'package:easy_qr_toolkit/core/utils/custom_snackbar.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 import '../../generator_provider.dart';
+import 'qr_customization_sheet.dart';
 
 class GeneratedQRCard extends ConsumerStatefulWidget {
   const GeneratedQRCard({super.key, this.isCompact = false});
@@ -24,7 +26,8 @@ class _GeneratedQRCardState extends ConsumerState<GeneratedQRCard> {
   @override
   Widget build(BuildContext context) {
     // Use selectors to minimize rebuilds - only rebuild when these specific fields change
-    final qrImageObject = ref.watch(generatorProvider.select((s) => s.qrImageObject));
+    final qrImageObject =
+        ref.watch(generatorProvider.select((s) => s.qrImageObject));
     final data = ref.watch(generatorProvider.select((s) => s.data));
     final shape = ref.watch(generatorProvider.select((s) => s.shape));
     final qrColor = ref.watch(generatorProvider.select((s) => s.qrColor));
@@ -42,21 +45,12 @@ class _GeneratedQRCardState extends ConsumerState<GeneratedQRCard> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
+          M3ECard(
+            variant: M3ECardVariant.elevated,
+            color: Colors.white,
+            elevation: 3,
             padding: EdgeInsets.all(isCompact ? 16 : 24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha:0.08),
-                  blurRadius: 12,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
+            borderRadius: BorderRadius.circular(28),
             child: Column(
               children: [
                 AnimatedContainer(
@@ -75,13 +69,32 @@ class _GeneratedQRCardState extends ConsumerState<GeneratedQRCard> {
                               logoScale,
                             ),
                           )
-                        : PrettyQrView.data(
-                            data: data,
-                            decoration: qrService.getDecoration(
-                              shape,
-                              qrColor,
-                              logo,
-                              logoScale,
+                        : Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.warning_amber_rounded,
+                                    size: 36,
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Input too long for QR',
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .error,
+                                        ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                   ),
@@ -90,14 +103,17 @@ class _GeneratedQRCardState extends ConsumerState<GeneratedQRCard> {
             ),
           ),
           SizedBox(height: isCompact ? 16 : 24),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            height: isCompact ? 40 : 56,
+          FittedBox(
+            fit: BoxFit.scaleDown,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                FilledButton.icon(
-                  onPressed: _isSaving ? null : _handleSave,
+                M3EButton.icon(
+                  style: M3EButtonStyle.filled,
+                  size: isCompact ? M3EButtonSize.sm : M3EButtonSize.md,
+                  onPressed: (qrImageObject == null || _isSaving)
+                      ? null
+                      : _handleSave,
                   icon: _isSaving
                       ? const SizedBox(
                           width: 16,
@@ -109,18 +125,24 @@ class _GeneratedQRCardState extends ConsumerState<GeneratedQRCard> {
                         )
                       : const Icon(Icons.download_rounded, size: 20),
                   label: Text(_isSaving ? 'Saving...' : 'Save'),
-                  style: FilledButton.styleFrom(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: isCompact ? 16 : 24,
-                        vertical: isCompact ? 0 : 16),
-                    visualDensity: isCompact
-                        ? VisualDensity.compact
-                        : VisualDensity.standard,
-                  ),
                 ),
-                const SizedBox(width: 16),
-                FilledButton.tonalIcon(
-                  onPressed: _isSharing ? null : _handleShare,
+                const SizedBox(width: 8),
+                M3EButton.icon(
+                  style: M3EButtonStyle.tonal,
+                  size: isCompact ? M3EButtonSize.sm : M3EButtonSize.md,
+                  onPressed: qrImageObject == null
+                      ? null
+                      : () => _showCustomizationSheet(context),
+                  icon: const Icon(Icons.tune_rounded, size: 20),
+                  label: const Text('Customize'),
+                ),
+                const SizedBox(width: 8),
+                M3EIconButton(
+                  variant: M3EIconButtonVariant.tonal,
+                  size: isCompact ? M3EIconButtonSize.sm : M3EIconButtonSize.md,
+                  onPressed: (qrImageObject == null || _isSharing)
+                      ? null
+                      : _handleShare,
                   icon: _isSharing
                       ? SizedBox(
                           width: 16,
@@ -130,20 +152,12 @@ class _GeneratedQRCardState extends ConsumerState<GeneratedQRCard> {
                             color: context.primary,
                           ),
                         )
-                      : const Icon(Icons.share_rounded, size: 20),
-                  label: Text(_isSharing ? 'Preparing...' : 'Share'),
-                  style: FilledButton.styleFrom(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: isCompact ? 16 : 24,
-                        vertical: isCompact ? 0 : 16),
-                    visualDensity: isCompact
-                        ? VisualDensity.compact
-                        : VisualDensity.standard,
-                  ),
+                      : const Icon(Icons.share_rounded),
+                  tooltip: 'Share QR Code',
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
@@ -177,6 +191,7 @@ class _GeneratedQRCardState extends ConsumerState<GeneratedQRCard> {
   }
 
   Future<void> _handleShare() async {
+    if (_isSharing) return;
     setState(() => _isSharing = true);
     try {
       final exportImage = await ref
@@ -195,5 +210,16 @@ class _GeneratedQRCardState extends ConsumerState<GeneratedQRCard> {
         setState(() => _isSharing = false);
       }
     }
+  }
+
+  Future<void> _showCustomizationSheet(BuildContext context) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      builder: (context) => const QrCustomizationSheet(),
+    );
   }
 }

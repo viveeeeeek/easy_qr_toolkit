@@ -1,13 +1,13 @@
 import 'package:easy_qr_toolkit/core/enums/qr_type.dart';
+import 'package:easy_qr_toolkit/core/theme/m3_expressive.dart';
 import 'package:easy_qr_toolkit/features/scanner/provider/scanner_provider.dart';
-
-import 'package:easy_qr_toolkit/features/scanner/view/widgets/result_data_section.dart';
-import 'package:easy_qr_toolkit/features/scanner/view/widgets/result_action_buttons.dart';
-import 'package:easy_qr_toolkit/features/scanner/view/widgets/smart_action_buttons.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:easy_qr_toolkit/features/scanner/view/qr_scan_view.dart';
+import 'package:easy_qr_toolkit/features/scanner/view/widgets/result_action_buttons.dart';
+import 'package:easy_qr_toolkit/features/scanner/view/widgets/result_data_section.dart';
+import 'package:easy_qr_toolkit/features/scanner/view/widgets/smart_action_buttons.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
+
 import '../../../core/extensions/sizedbox.dart';
 
 class QRResultView extends ConsumerWidget {
@@ -34,30 +34,28 @@ class QRResultView extends ConsumerWidget {
                 ),
                 child: IntrinsicHeight(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0, vertical: 24),
                     child: Column(
                       children: [
                         const Spacer(),
 
                         // The Main Result Card
-                        Container(
+                        M3ECard(
+                          variant: M3ECardVariant.filled,
+                          borderRadius: BorderRadius.circular(28),
+                          padding: const EdgeInsets.all(24),
                           width: double.infinity,
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(28),
-                            border: Border.all(
-                              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                            ),
-                          ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               // A badge showing the type
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: colorScheme.primary.withValues(alpha: 0.1),
+                                  color: colorScheme.primary
+                                      .withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
@@ -70,7 +68,7 @@ class QRResultView extends ConsumerWidget {
                                   ),
                                 ),
                               ),
-                              10.h,
+                              16.h,
                               // The Data Section
                               ResultDataSection(content: state.scannedData),
 
@@ -90,7 +88,8 @@ class QRResultView extends ConsumerWidget {
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => const QRScanView()),
+                                        builder: (context) =>
+                                            const QRScanView()),
                                   );
                                 },
                               ),

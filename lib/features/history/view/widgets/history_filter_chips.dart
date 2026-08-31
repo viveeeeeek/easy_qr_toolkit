@@ -1,6 +1,7 @@
 import 'package:easy_qr_toolkit/core/enums/qr_type.dart';
-import 'package:flutter/material.dart';
+import 'package:easy_qr_toolkit/core/theme/m3_expressive.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../provider/history_provider.dart';
 
@@ -11,7 +12,12 @@ class HistoryFilterChips extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final filters = ['All', ...QrType.values.where((e) => e != QrType.other).map((e) => e.displayName)];
+    final filters = [
+      'All',
+      ...QrType.values
+          .where((e) => e != QrType.other)
+          .map((e) => e.displayName)
+    ];
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -21,16 +27,13 @@ class HistoryFilterChips extends ConsumerWidget {
           final isSelected = activeFilter == filter;
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
-            child: FilterChip(
-              label: Text(filter),
+            child: M3EChip(
+              label: filter,
+              type: M3EChipType.filter,
               selected: isSelected,
-              onSelected: (bool value) {
+              onPressed: () {
                 ref.read(historyProvider.notifier).changeFilter(filter);
               },
-              showCheckmark: false,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
             ),
           );
         }).toList(),

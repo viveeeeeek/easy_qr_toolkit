@@ -1,18 +1,18 @@
+import 'package:easy_qr_toolkit/core/constants/app_constants.dart';
+import 'package:easy_qr_toolkit/core/enums/qr_type.dart';
 import 'package:easy_qr_toolkit/core/extensions/color_extension.dart';
 import 'package:easy_qr_toolkit/core/extensions/sizedbox.dart';
+import 'package:easy_qr_toolkit/core/theme/m3_expressive.dart';
+import 'package:easy_qr_toolkit/features/home/generator_provider.dart';
 import 'package:easy_qr_toolkit/features/scanner/view/qr_scan_view.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_widget/home_widget.dart';
+import 'package:material_ui/material_ui.dart';
 
-import '../../../core/constants/app_constants.dart';
-import '../../../core/enums/qr_type.dart';
-import '../../settings/view/theme_settings_bottom_sheet.dart';
-import '../generator_provider.dart';
-import 'widgets/smart_input_container.dart';
-import 'widgets/qr_type_selector.dart';
 import 'widgets/generated_qr_card.dart';
 import 'widgets/qr_customization_sheet.dart';
+import 'widgets/qr_type_selector.dart';
+import 'widgets/smart_input_container.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
@@ -88,12 +88,13 @@ class _HomeViewState extends ConsumerState<HomeView> with RouteAware {
   @override
   Widget build(BuildContext context) {
     // Only rebuild HomeView if strictly necessary (keyboard or data existence)
-    final hasData = ref.watch(generatorProvider.select((s) => s.data.isNotEmpty));
+    final hasData =
+        ref.watch(generatorProvider.select((s) => s.data.isNotEmpty));
     final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 100;
 
     // FAB visibility: hide when user is typing (keyboard open + started typing) OR customizing
     final shouldHideFab = (isKeyboardOpen && _isTyping) || _isCustomizing;
-    
+
     // FAB expansion: minimize when QR is generated OR scrolled
     final shouldExpandFab = _isFabExpanded && !hasData;
 
@@ -107,27 +108,26 @@ class _HomeViewState extends ConsumerState<HomeView> with RouteAware {
               title: const Text('Generate QR'),
               centerTitle: false,
               actions: [
-                IconButton(
+                M3EIconButton(
+                  variant: M3EIconButtonVariant.tonal,
                   onPressed: () {
-                    // Unfocus before navigating
                     _inputFocusNode.unfocus();
                     Navigator.pushNamed(context, AppRoutes.history);
                   },
                   icon: const Icon(Icons.history_rounded),
                   tooltip: 'History',
                 ),
-                IconButton(
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      showDragHandle: true,
-                      builder: (context) => const ThemeSettingsBottomSheet(),
-                    );
-                  },
-                  icon: const Icon(Icons.palette_outlined),
-                  tooltip: 'Theme',
-                ),
                 const SizedBox(width: 8),
+                M3EIconButton(
+                  variant: M3EIconButtonVariant.tonal,
+                  onPressed: () {
+                    _inputFocusNode.unfocus();
+                    Navigator.pushNamed(context, AppRoutes.settings);
+                  },
+                  icon: const Icon(Icons.settings_outlined),
+                  tooltip: 'Settings',
+                ),
+                const SizedBox(width: 12),
               ],
             ),
             SliverPadding(
@@ -169,12 +169,10 @@ class _HomeViewState extends ConsumerState<HomeView> with RouteAware {
                     ),
                   ),
                   // Use AnimatedSwitcher instead of AnimatedCrossFade for better performance
-                  // AnimatedSwitcher only builds the CURRENT child, not both.
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     switchInCurve: Curves.easeOut,
                     switchOutCurve: Curves.easeIn,
-                    // Simple fade only - no size animation to avoid layout recalculations
                     transitionBuilder: (child, animation) {
                       return FadeTransition(
                         opacity: animation,
@@ -187,44 +185,11 @@ class _HomeViewState extends ConsumerState<HomeView> with RouteAware {
                             key: const ValueKey('qr_content'),
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              // Dynamic spacing based on keyboard
-                              (isKeyboardOpen ? 16.h : 32.h),
-
-                              // The main QR Card
+                              (isKeyboardOpen ? 16.h : 28.h),
                               GeneratedQRCard(isCompact: isKeyboardOpen),
-
-                              if (!isKeyboardOpen && !_isCustomizing) ...[
-                                32.h,
-                                Center(
-                                  child: OutlinedButton.icon(
-                                    onPressed: () async {
-                                      setState(() => _isCustomizing = true);
-                                      await showModalBottomSheet(
-                                        context: context,
-                                        isScrollControlled: true,
-                                        showDragHandle: true,
-                                        backgroundColor:
-                                            Theme.of(context).scaffoldBackgroundColor,
-                                        builder: (context) =>
-                                            const QrCustomizationSheet(),
-                                      );
-                                      if (mounted) {
-                                        setState(() => _isCustomizing = false);
-                                      }
-                                    },
-                                    icon: const Icon(Icons.tune_rounded),
-                                    label: const Text('Customize Style'),
-                                    style: OutlinedButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 24, vertical: 12),
-                                    ),
-                                  ),
-                                ),
-                              ],
                             ],
                           ),
                   ),
-                  // Extra padding at bottom for FAB
                   100.h,
                 ]),
               ),
@@ -234,18 +199,18 @@ class _HomeViewState extends ConsumerState<HomeView> with RouteAware {
       ),
       floatingActionButton: shouldHideFab
           ? null
-          : FloatingActionButton.extended(
+          : M3EExtendedFab(
+              label: 'Scan QR',
+              icon: const Icon(Icons.qr_code_scanner_rounded),
+              extended: shouldExpandFab,
+              color: M3EFabColor.primary,
               onPressed: () {
-                // Unfocus before navigating
                 _inputFocusNode.unfocus();
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const QRScanView()),
                 );
               },
-              icon: const Icon(Icons.qr_code_scanner_rounded),
-              label: const Text('Scan QR'),
-              isExtended: shouldExpandFab,
             ),
     );
   }

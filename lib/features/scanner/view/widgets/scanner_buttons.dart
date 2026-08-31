@@ -1,12 +1,8 @@
-import 'dart:developer';
-
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:easy_qr_toolkit/core/theme/m3_expressive.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 /// Scan Gallery Image Button
-///
-/// Scans the image from the gallery
 class ScanGalleryImgButton extends StatelessWidget {
   const ScanGalleryImgButton(
       {required this.controller, super.key, required this.onBarcodeFound});
@@ -16,13 +12,21 @@ class ScanGalleryImgButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(icon: const Icon(Icons.image), onPressed: onBarcodeFound);
+    return M3EIconButton(
+      variant: M3EIconButtonVariant.tonal,
+      icon: const Icon(Icons.image_rounded),
+      tooltip: 'Scan Image',
+      onPressed: onBarcodeFound,
+    );
   }
 }
 
 /// Toggle Flashlight Button
 ///
-/// Toggles the flashlight on and off
+/// Uses [ValueListenableBuilder] to listen directly to the ephemeral camera
+/// [MobileScannerController] notifications. This isolates flashlight state
+/// rebuilds to this widget alone without triggering broader tree rebuilds
+/// or duplicating camera platform channel events in global Riverpod state.
 class ToggleFlashlightButton extends StatelessWidget {
   const ToggleFlashlightButton({required this.controller, super.key});
 
@@ -30,41 +34,25 @@ class ToggleFlashlightButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
+    return ValueListenableBuilder<MobileScannerState>(
       valueListenable: controller,
       builder: (context, state, child) {
-        if (!state.isInitialized || !state.isRunning) {
-          return const SizedBox.shrink();
-        }
+        final isTorchOn = state.torchState == TorchState.on;
 
-        switch (state.torchState) {
-          case TorchState.auto:
-            return IconButton(
-              icon: const Icon(Icons.flash_auto),
-              onPressed: () async {
-                await controller.toggleTorch();
-              },
-            );
-          case TorchState.off:
-            return IconButton(
-              icon: const Icon(Icons.flashlight_off_rounded),
-              onPressed: () async {
-                await controller.toggleTorch();
-              },
-            );
-          case TorchState.on:
-            return IconButton(
-              icon: const Icon(Icons.flashlight_on_rounded),
-              onPressed: () async {
-                await controller.toggleTorch();
-              },
-            );
-          case TorchState.unavailable:
-            return const Icon(
-              Icons.no_flash,
-              color: Colors.grey,
-            );
-        }
+        return M3EIconButton(
+          variant: isTorchOn
+              ? M3EIconButtonVariant.filled
+              : M3EIconButtonVariant.tonal,
+          icon: Icon(
+            isTorchOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
+          ),
+          tooltip: isTorchOn ? 'Turn Flash Off' : 'Turn Flash On',
+          onPressed: () async {
+            try {
+              await controller.toggleTorch();
+            } catch (_) {}
+          },
+        );
       },
     );
   }

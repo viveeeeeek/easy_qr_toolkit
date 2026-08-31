@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -13,13 +13,34 @@ export 'generator_state.dart';
 
 part 'generator_provider.g.dart';
 
-// Independent function for Isolate
-QrImage _generateQrIsolate(String data) {
-  final qrCode = QrCode.fromData(
-    data: data,
-    errorCorrectLevel: QrErrorCorrectLevel.H,
-  );
-  return QrImage(qrCode);
+// Independent function for Isolate with fallback error correction
+QrImage? _generateQrIsolate(String data) {
+  try {
+    final qrCode = QrCode.fromData(
+      data: data,
+      errorCorrectLevel: QrErrorCorrectLevel.H,
+    );
+    return QrImage(qrCode);
+  } catch (_) {
+    // If data exceeds Level H capacity, fallback to Level M or L
+    try {
+      final qrCode = QrCode.fromData(
+        data: data,
+        errorCorrectLevel: QrErrorCorrectLevel.M,
+      );
+      return QrImage(qrCode);
+    } catch (_) {
+      try {
+        final qrCode = QrCode.fromData(
+          data: data,
+          errorCorrectLevel: QrErrorCorrectLevel.L,
+        );
+        return QrImage(qrCode);
+      } catch (_) {
+        return null;
+      }
+    }
+  }
 }
 
 @riverpod
